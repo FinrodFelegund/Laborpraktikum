@@ -6,6 +6,9 @@
 #include <QMessageBox>
 #include <QAbstractSocket>
 #include <QDebug>
+#include "appointment.h"
+#include "reportscreen.h"
+#include "client.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,23 +24,18 @@ public:
 
 private slots:
 
-    void readSocket();
-    void discardSocket();
-    void displayError(QAbstractSocket::SocketError socketError);
 
-    void displayMessage(QString &str);
+    void on_reportButton_clicked();
 
+    void on_appointmentButton_clicked();
 
-    void on_pushButton_sendMessage_clicked();
-
-signals:
-    void newMessage(QString &str);
 
 
 private:
     Ui::MainWindow *ui;
-    QTcpSocket *m_clientSocket;
-    std::string IPAdress;
-    int portNumber;
+    Client *client;
+    Appointment *m_appointment;
+    ReportScreen *m_reportScreen;
+    std::vector<QWidget*> widgets;
 };
 #endif // MAINWINDOW_H

@@ -11,6 +11,7 @@
 #include <QStandardPaths>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <iostream>
 
 
 QT_BEGIN_NAMESPACE
@@ -26,7 +27,7 @@ public:
     ~MainWindow();
 
 signals:
-    void newMessage(QString &str);
+    void newMessage(QString &header, QString &message);
 
 private slots:
     void newConnection();
@@ -35,7 +36,7 @@ private slots:
     void discardSocket();
     void displayError(QAbstractSocket::SocketError socketError);
 
-    void displayMessage(QString &str);
+    void displayMessage(QString &header, QString &str);
     void sendMessage(QTcpSocket *socket);
 
 
