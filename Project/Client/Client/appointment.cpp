@@ -1,6 +1,7 @@
 #include "appointment.h"
 #include "ui_appointment.h"
-#include "../../header.h"
+//#include "../../header.h"
+
 
 Appointment::Appointment(QWidget *parent, QString userID) :
     QWidget(parent),
@@ -9,6 +10,8 @@ Appointment::Appointment(QWidget *parent, QString userID) :
     ui->setupUi(this);
 
     this->userID = userID;
+
+
 }
 
 Appointment::~Appointment()
@@ -30,7 +33,7 @@ void Appointment::createAppointmentMessage()
     //create the header and message for the server
     QByteArray header;
     int messageType = MessageHeader::saveMessage;
-    int messageEntity = MessageHeader::Appointment;
+    int messageEntity = MessageHeader::AppointmentEnt;
 
     header.prepend(QString::number(messageEntity).toUtf8() + ",");
     header.prepend(QString::number(messageType).toUtf8() + ",");

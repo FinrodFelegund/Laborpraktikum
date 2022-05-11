@@ -9,6 +9,9 @@ CONFIG += c++17
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+LIBS +=  -L/usr/local/Cellar/openssl@3/3.0.3/lib -lssl -lcrypto
+INCLUDEPATH += /usr/local/Cellar/openssl@3/3.0.3/include
+
 SOURCES += \
     appointment.cpp \
     client.cpp \
@@ -20,14 +23,19 @@ HEADERS += \
     appointment.h \
     client.h \
     mainwindow.h \
-    reportscreen.h
+    reportscreen.h \
+    ../../header.h
 
 FORMS += \
     appointment.ui \
     mainwindow.ui \
     reportscreen.ui
 
+
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+

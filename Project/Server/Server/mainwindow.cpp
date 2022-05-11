@@ -3,6 +3,7 @@
 #include "../../header.h"
 
 
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -168,7 +169,7 @@ void MainWindow::displayMessage(QString &header, QString &buffer)
 
         switch(entityType)
         {
-            case MessageHeader::Appointment:
+            case MessageHeader::AppointmentEnt:
 
             appointment.date = bufferSplit[0];
             appointment.doctor = bufferSplit[1];

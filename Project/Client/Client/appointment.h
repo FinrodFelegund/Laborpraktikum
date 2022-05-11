@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <iostream>
+#include "../../header.h"
 
 
 namespace Ui {
@@ -27,6 +28,8 @@ private slots:
 private:
     Ui::Appointment *ui;
     QString userID = "1234";
+
+
 };
 
 #endif // APPOINTMENT_H
