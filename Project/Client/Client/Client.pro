@@ -17,7 +17,8 @@ SOURCES += \
     client.cpp \
     main.cpp \
     mainwindow.cpp \
-    reportscreen.cpp
+    reportscreen.cpp \
+    ../../header.cpp
 
 HEADERS += \
     appointment.h \

@@ -22,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent)
         QMessageBox::critical(this,"QTCPServer",QString("Unable to start the server: %1.").arg(m_server->errorString()));
         exit(EXIT_FAILURE);
     }
+
+    krypter = new Krypter;
 }
 
 MainWindow::~MainWindow()
@@ -34,6 +36,7 @@ MainWindow::~MainWindow()
     m_server->close();
     m_server->deleteLater();
 
+    delete krypter;
     delete ui;
 
 }
@@ -58,6 +61,7 @@ void MainWindow::readSocket(){
     QTcpSocket *socket = reinterpret_cast<QTcpSocket*>(sender());
     QByteArray buffer;
 
+
     QDataStream socketStream(socket);
     socketStream.setVersion(QDataStream::Qt_5_15);
 
@@ -73,15 +77,16 @@ void MainWindow::readSocket(){
 
     }
 
+
     //here we cut the buffer in header and message
 
     QString header = buffer.mid(0, 128);
 
-    buffer = buffer.mid(128);
 
-    QString message = QString::fromStdString(buffer.toStdString());
+    emit newMessage(header, buffer);
 
-    emit newMessage(header, message);
+
+
 }
 
 void MainWindow::discardSocket(){
@@ -122,7 +127,7 @@ void MainWindow::sendMessage(QTcpSocket *socket)
 
 }
 
-void MainWindow::displayMessage(QString &header, QString &buffer)
+void MainWindow::displayMessage(QString header, QByteArray buffer)
 {
 
     //this function must be the center piece of the server
@@ -130,19 +135,23 @@ void MainWindow::displayMessage(QString &header, QString &buffer)
     //for now header consists of 2 integers: message type & entity type which are stored as the first two entrances in the header string
     //this function might get big lol
 
+
     QStringList headerSplit = header.split(",");
 
     int messageType = headerSplit[0].toInt();
     int entityType = headerSplit[1].toInt();
+    int cipherLength = headerSplit[2].toInt();
 
-    qDebug() << "Message Type: " << messageType << " " << "Entity Type: " << entityType;
+    buffer = buffer.mid(128);
 
+    QString message = decrypt(buffer, cipherLength);
 
     //here we determine what the instruction from the client was
     switch(messageType)
     {
         case MessageHeader::saveMessage:
         //saveToDataBase(entityType, buffer)
+        safeEntityToDatabase(entityType, cipherLength, buffer);
         break;
 
         case MessageHeader::returnMessage:
@@ -158,35 +167,38 @@ void MainWindow::displayMessage(QString &header, QString &buffer)
 
     }
 
+}
 
 
-        QStringList bufferSplit = buffer.split(";");
+void MainWindow::safeEntityToDatabase(int entityType, int cipherLength, QByteArray buffer)
+{
+
+}
+
+QString MainWindow::decrypt(QByteArray buffer, int cipherLength)
+{
+    unsigned char buf[300];
+    unsigned char plainText[300];
+    qDebug() << "Server Utf8 encoded: " << buffer;
+    QString cipher = QString::fromUtf8(buffer);
+
+    for(int i = 0; i < cipherLength; i++)
+    {
+        buf[i] = cipher[i].toLatin1();
+        printf("%d ", cipher[i]);
+    }
+
+    qDebug();
 
 
-        //for now create each entity we have, even though we will only need one or none for return message
-        QString userID = "";
-        AppointmentEntity appointment; //, .....   (more entities will follow soonish)
-
-        switch(entityType)
-        {
-            case MessageHeader::AppointmentEnt:
-
-            appointment.date = bufferSplit[0];
-            appointment.doctor = bufferSplit[1];
-            appointment.text = bufferSplit[2];
-            userID = bufferSplit[3];
-            break;
-            default:
-            break;
+    krypter->decrypt(buf, cipherLength, plainText);
 
 
-        }
+    QString message = QString::fromUtf8((char*)plainText);
 
-        qDebug() << appointment.date << appointment.doctor << appointment.text;
+    qDebug() << message;
 
-
-
-
+    return "message";
 
 
 }

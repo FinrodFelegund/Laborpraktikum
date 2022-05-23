@@ -13,6 +13,8 @@
 #include <QTcpSocket>
 #include <iostream>
 
+class Krypter;
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -26,8 +28,11 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void safeEntityToDatabase(int entityType, int cipherLength, QByteArray buffer);
+    QString decrypt(QByteArray buffer, int cipherLength);
+
 signals:
-    void newMessage(QString &header, QString &message);
+    void newMessage(QString header, QByteArray message);
 
 private slots:
     void newConnection();
@@ -36,7 +41,7 @@ private slots:
     void discardSocket();
     void displayError(QAbstractSocket::SocketError socketError);
 
-    void displayMessage(QString &header, QString &str);
+    void displayMessage(QString header, QByteArray str);
     void sendMessage(QTcpSocket *socket);
 
 
@@ -46,6 +51,8 @@ private:
     QTcpServer *m_server;
     QSet<QTcpSocket*> m_connection_set;
     int port_number = 1234;
+
+    Krypter *krypter;
 
 };
 #endif // MAINWINDOW_H

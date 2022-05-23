@@ -32,9 +32,6 @@ MainWindow::~MainWindow()
 
 
 
-
-
-
 void MainWindow::on_appointmentButton_clicked()
 {
     ui->stackedWidget->setCurrentWidget(m_appointment);

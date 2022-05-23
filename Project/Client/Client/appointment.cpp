@@ -37,7 +37,7 @@ void Appointment::createAppointmentMessage()
 
     header.prepend(QString::number(messageEntity).toUtf8() + ",");
     header.prepend(QString::number(messageType).toUtf8() + ",");
-    header.resize(128);
+
 
 
 
@@ -45,9 +45,7 @@ void Appointment::createAppointmentMessage()
     QByteArray messageToSend = message.toUtf8();
     messageToSend.prepend(header);
 
-    qDebug() << "message created";
-    emit messageCreated(messageToSend);
-
+    emit messageCreated(header, message);
 
 
 }

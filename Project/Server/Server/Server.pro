@@ -13,7 +13,8 @@ INCLUDEPATH += /usr/local/Cellar/openssl@3/3.0.3/include
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    ../../header.cpp
 
 HEADERS += \
     mainwindow.h \

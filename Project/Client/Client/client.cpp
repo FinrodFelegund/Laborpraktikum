@@ -1,4 +1,5 @@
 #include "client.h"
+#include "../../header.h"
 
 Client::Client()
 {
@@ -16,6 +17,8 @@ Client::Client()
          qDebug() << "The following error occurred: " << m_clientSocket->errorString();
          exit(EXIT_FAILURE);
         }
+
+    krypter = new Krypter;
 }
 
 Client::~Client()
@@ -60,10 +63,42 @@ void Client::readSocket()
     //here we must interpret the header and create an entity accordingly. Appointment, Report, etc...
 }
 
-void Client::sendMessage(QByteArray message)
+void Client::sendMessage(QByteArray header, QString message)
 {
 
-    qDebug() << "sending message";
+
+    //lets try the krypto class
+    std::string test = message.toStdString();
+    unsigned char *mes = (unsigned char*) test.c_str();
+    int text_len = strlen((const char*) mes);
+    unsigned char cipher[300];
+
+
+
+    int length = krypter->encrypt(mes, text_len, cipher);
+
+    for(int i = 0; i < length; i++)
+        printf("%d ", cipher[i]);
+
+    //last entry of header consists of cipher length
+    header.append(QString::number(length).toUtf8() + ",");
+    header.resize(128);
+
+    message.clear();
+    for(int i = 0; i < length; i++)
+    {
+        message.append((const char)cipher[i]);
+    }
+
+    qDebug() << "Encrypted Message " << message << " Encryption Length in Client: " << length;
+
+
+
+    QByteArray messageToSend;
+    messageToSend = message.toUtf8();
+    qDebug() << "Utf8 encoded: " << messageToSend;
+    messageToSend.prepend(header);
+
     if(m_clientSocket)
     {
         if(m_clientSocket->isOpen())
@@ -71,7 +106,7 @@ void Client::sendMessage(QByteArray message)
             QDataStream socketStream(m_clientSocket);
             socketStream.setVersion(QDataStream::Qt_5_15);
 
-            socketStream << message;
+            socketStream << messageToSend;
         }
     }
 }

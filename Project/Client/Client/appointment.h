@@ -20,7 +20,7 @@ public:
     void createAppointmentMessage();
 
 signals:
-    void messageCreated(QByteArray messageToSend);
+    void messageCreated(QByteArray header, QString message);
 
 private slots:
     void on_buttonSend_clicked();

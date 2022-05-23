@@ -5,6 +5,9 @@
 #include <QTcpSocket>
 #include <QMessageBox>
 
+
+class Krypter;
+
 class Client : public QObject
 {
     Q_OBJECT
@@ -17,13 +20,14 @@ private slots:
     void discardSocket();
     void displayError(QAbstractSocket::SocketError socketError);
 public slots:
-    void sendMessage(QByteArray message);
+    void sendMessage(QByteArray header, QString message);
     void readSocket();
 
 private:
     QTcpSocket *m_clientSocket;
     std::string IPAdress;
     int portNumber;
+    Krypter *krypter;
 };
 
 #endif // CLIENT_H
