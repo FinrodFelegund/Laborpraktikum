@@ -12,6 +12,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <iostream>
+#include <QtSql>
 
 class Krypter;
 
@@ -51,7 +52,7 @@ private:
     QTcpServer *m_server;
     QSet<QTcpSocket*> m_connection_set;
     int port_number = 1234;
-
+    QSqlDatabase db;
     Krypter *krypter;
 
 };

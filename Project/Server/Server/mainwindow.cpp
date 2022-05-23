@@ -23,6 +23,17 @@ MainWindow::MainWindow(QWidget *parent)
         exit(EXIT_FAILURE);
     }
 
+    db =QSqlDatabase::addDatabase("QMYSQL","demoapp");
+        db.setHostName("127.0.0.1");
+        db.setDatabaseName("demoapp");
+        db.setUserName("LPRApp");
+        db.setPassword("DaCiHa22");
+        if(!db.open()){
+            std::cerr<<db.lastError().text().toStdString()<<std::endl;
+        } else{
+            std::cout<<"db loaded successfully!"<<std::endl;
+        }
+
     krypter = new Krypter;
 }
 
