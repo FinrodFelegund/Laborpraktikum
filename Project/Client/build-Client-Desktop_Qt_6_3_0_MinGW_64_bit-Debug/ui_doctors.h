@@ -32,10 +32,12 @@ public:
     QPushButton *saveButton;
     QLabel *label;
     QLineEdit *drName;
+    QLineEdit *phone;
     QSpinBox *housenumber;
     QLabel *label_3;
     QLineEdit *street;
-    QLineEdit *phone;
+    QLineEdit *plz;
+    QLabel *label_7;
 
     void setupUi(QWidget *Doctors)
     {
@@ -68,12 +70,12 @@ public:
         label_5 = new QLabel(Doctors);
         label_5->setObjectName(QString::fromUtf8("label_5"));
 
-        gridLayout->addWidget(label_5, 4, 0, 1, 1);
+        gridLayout->addWidget(label_5, 5, 0, 1, 1);
 
         saveButton = new QPushButton(Doctors);
         saveButton->setObjectName(QString::fromUtf8("saveButton"));
 
-        gridLayout->addWidget(saveButton, 5, 2, 1, 1);
+        gridLayout->addWidget(saveButton, 6, 2, 1, 1);
 
         label = new QLabel(Doctors);
         label->setObjectName(QString::fromUtf8("label"));
@@ -85,8 +87,14 @@ public:
 
         gridLayout->addWidget(drName, 1, 1, 1, 1);
 
+        phone = new QLineEdit(Doctors);
+        phone->setObjectName(QString::fromUtf8("phone"));
+
+        gridLayout->addWidget(phone, 5, 1, 1, 1);
+
         housenumber = new QSpinBox(Doctors);
         housenumber->setObjectName(QString::fromUtf8("housenumber"));
+        housenumber->setMaximum(10000);
 
         gridLayout->addWidget(housenumber, 2, 3, 1, 1);
 
@@ -100,10 +108,15 @@ public:
 
         gridLayout->addWidget(street, 2, 1, 1, 1);
 
-        phone = new QLineEdit(Doctors);
-        phone->setObjectName(QString::fromUtf8("phone"));
+        plz = new QLineEdit(Doctors);
+        plz->setObjectName(QString::fromUtf8("plz"));
 
-        gridLayout->addWidget(phone, 4, 1, 1, 1);
+        gridLayout->addWidget(plz, 4, 1, 1, 1);
+
+        label_7 = new QLabel(Doctors);
+        label_7->setObjectName(QString::fromUtf8("label_7"));
+
+        gridLayout->addWidget(label_7, 4, 0, 1, 1);
 
 
         retranslateUi(Doctors);
@@ -121,6 +134,7 @@ public:
         saveButton->setText(QCoreApplication::translate("Doctors", "Speichern", nullptr));
         label->setText(QCoreApplication::translate("Doctors", "Name", nullptr));
         label_3->setText(QCoreApplication::translate("Doctors", "Stadt", nullptr));
+        label_7->setText(QCoreApplication::translate("Doctors", "Postleitzahl", nullptr));
     } // retranslateUi
 
 };

@@ -34,28 +34,20 @@ MainWindow::~MainWindow()
 
 }
 
-
-
 void MainWindow::on_appointmentButton_clicked()
 {
+    m_appointment->resetPage();
     ui->stackedWidget->setCurrentWidget(m_appointment);
-
-
 }
-
-
 
 void MainWindow::on_reportButton_clicked()
 {
     ui->stackedWidget->setCurrentWidget(m_reportScreen);
 }
 
-
-
-
-
 void MainWindow::on_docButton_clicked()
 {
+    m_doctors->resetPage();
     ui->stackedWidget->setCurrentWidget(m_doctors);
 }
 

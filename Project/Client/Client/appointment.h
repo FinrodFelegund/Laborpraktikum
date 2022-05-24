@@ -18,6 +18,7 @@ public:
     explicit Appointment(QWidget *parent = nullptr, QString userID = "1234");
     ~Appointment();
     void createAppointmentMessage();
+    void resetPage();
 
 signals:
     void messageCreated(QByteArray header, QString message);

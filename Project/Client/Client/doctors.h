@@ -15,6 +15,7 @@ class Doctors : public QWidget
 public:
     explicit Doctors(QWidget *parent = nullptr);
     ~Doctors();
+    void resetPage();
 
 signals:
     void messageCreated(QByteArray header, QString message);

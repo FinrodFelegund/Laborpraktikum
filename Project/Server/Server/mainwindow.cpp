@@ -144,22 +144,24 @@ void MainWindow::saveDoctorInDb(QString message)
 
     QString name = docInfo[0];
     QString street = docInfo[1];
-    int housenumber = docInfo[2].toInt();
+    QString housenumber = docInfo[2];
     QString city = docInfo[3];
-    int phonenumber = docInfo[4].toInt();
-    int user_id = docInfo[5].toInt();
+    QString plz = docInfo[4];
+    QString phonenumber = docInfo[5];
+    int user_id = docInfo[6].toInt();
 
     if(user_id > -1){
         if(db.open()){
 
             QSqlQuery queryInsert(db);
-                        queryInsert.prepare("insert into doctors(doctorname, street, streetnumber, city, phone, uid) VALUES(?,?,?,?,?,?)");
+                        queryInsert.prepare("insert into doctors(doctorname, street, streetnumber, city, plz, phone, uid) VALUES(?,?,?,?,?,?,?)");
                         queryInsert.bindValue(0,name);
                         queryInsert.bindValue(1,street);
                         queryInsert.bindValue(2,housenumber);
                         queryInsert.bindValue(3,city);
-                        queryInsert.bindValue(4,phonenumber);
-                        queryInsert.bindValue(5,user_id);
+                        queryInsert.bindValue(4,plz);
+                        queryInsert.bindValue(5,phonenumber);
+                        queryInsert.bindValue(6,user_id);
 
                         qDebug()<<queryInsert.exec();
                         QSqlError error= queryInsert.lastError();
@@ -173,6 +175,40 @@ void MainWindow::saveDoctorInDb(QString message)
 
 
 
+}
+
+void MainWindow::saveAppointmentInDb(QString message)
+{
+    QStringList appointmentInfo = message.split(";");
+
+    QDate date = QDate::fromString(appointmentInfo[0]);
+    QTime time = QTime::fromString(appointmentInfo[1]);
+    QString title = appointmentInfo[2];
+    QString notes = appointmentInfo[3];
+    int doc_id = appointmentInfo[4].toInt();
+    int user_id = appointmentInfo[5].toInt();
+
+    if(user_id > -1){
+        if(db.open()){
+
+            QSqlQuery queryInsert(db);
+                        queryInsert.prepare("insert into appointments(appdate,apptime,title,notes,did,uid) values(?,?,?,?,?,?)");
+                        queryInsert.bindValue(0,date);
+                        queryInsert.bindValue(1,time);
+                        queryInsert.bindValue(2,title);
+                        queryInsert.bindValue(3,notes);
+                        queryInsert.bindValue(4,doc_id);
+                        queryInsert.bindValue(5,user_id);
+
+                        qDebug()<<queryInsert.exec();
+                        QSqlError error= queryInsert.lastError();
+                        std::cout<<error.databaseText().toUtf8().constData();
+        }
+
+    }
+    else{
+        qDebug() << "User is not logged in";
+    }
 }
 
 void MainWindow::displayMessage(QString header, QByteArray buffer)
@@ -226,7 +262,7 @@ void MainWindow::safeEntityToDatabase(int entityType, int cipherLength, QByteArr
 
     switch (entityType) {
     case MessageHeader::AppointmentEnt:
-
+        saveAppointmentInDb(message);
         break;
     case MessageHeader::DoctorEnt:
         saveDoctorInDb(message);

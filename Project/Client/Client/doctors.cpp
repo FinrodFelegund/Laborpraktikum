@@ -14,15 +14,26 @@ Doctors::~Doctors()
     delete ui;
 }
 
+void Doctors::resetPage()
+{
+    ui->drName->setText("");
+    ui->street->setText("");
+    ui->housenumber->setValue(0);
+    ui->city->setText("");
+    ui->plz->setText("");
+    ui->phone->setText("");
+}
+
 void Doctors::createDoctorMessage()
 {
 
     //get Infos
     QString name = ui->drName->text();
     QString street = ui->street->text();
-    int housenumber = ui->housenumber->value();
+    QString housenumber = QString::number(ui->housenumber->value());
     QString city = ui->city->text();
-    int phonenumber = ui->phone->text().toInt();
+    QString plz = ui->plz->text();
+    QString phonenumber = ui->phone->text();
 
     //create the header and message for the server
     QByteArray header;
@@ -32,8 +43,8 @@ void Doctors::createDoctorMessage()
     header.prepend(QString::number(messageEntity).toUtf8() + ",");
     header.prepend(QString::number(messageType).toUtf8() + ",");
 
-    QString message = name + ";" + street + ";" + QString::number(housenumber)
-            + ";" + city + ";" + QString::number(phonenumber)+ ";" ;
+    QString message = name + ";" + street + ";" + housenumber
+            + ";" + city + ";" + plz + ";" + phonenumber + ";" ;
 
     QByteArray messageToSend = message.toUtf8();
     messageToSend.prepend(header);

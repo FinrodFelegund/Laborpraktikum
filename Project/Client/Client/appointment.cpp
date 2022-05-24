@@ -23,12 +23,14 @@ void Appointment::createAppointmentMessage()
 {
 
     //get the infos from the ui;
-    QDate tmp = ui->date->date();
-    QString date = tmp.toString();
+    QDate tmpdate = ui->date->selectedDate();
+    QString date = tmpdate.toString();
+    QTime tmptime = ui->appointmentTime->time();
+    QString time = tmptime.toString();
 
-    QString doctor = ui->doctorEdit->text();
-
-    QString text = ui->freeText->toPlainText();
+    int doctor = ui->docId->value();
+    QString title = ui->title->text();
+    QString notes = ui->notes->toPlainText();
 
     //create the header and message for the server
     QByteArray header;
@@ -42,12 +44,23 @@ void Appointment::createAppointmentMessage()
 
 
     //QString message = date + ";" + doctor + ";" + text + ";" + this->userID + ";";
-    QString message = date + ";" + doctor + ";" + text + ";";
+    QString message = date + ";" + time + ";" + title + ";"+ notes + ";"+ QString::number(doctor) + ";";
     QByteArray messageToSend = message.toUtf8();
     messageToSend.prepend(header);
 
     emit messageCreated(header, message);
 
+
+}
+
+void Appointment::resetPage()
+{
+    QDate today= QDate::currentDate();
+    ui->date->setCurrentPage(today.year(),today.month());
+    ui->appointmentTime->setTime(QTime::currentTime());
+    ui->docId->setValue(0);
+    ui->title->setText("");
+    ui->notes->setText("");
 
 }
 

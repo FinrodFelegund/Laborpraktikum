@@ -49,6 +49,7 @@ private slots:
 
 private:
     void saveDoctorInDb(QString message);
+    void saveAppointmentInDb(QString message);
 
     Ui::MainWindow *ui;
     QTcpServer *m_server;

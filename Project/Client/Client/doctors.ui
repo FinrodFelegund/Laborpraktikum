@@ -44,14 +44,14 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="5" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
       <string>Telefonnummer</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="2">
+   <item row="6" column="2">
     <widget class="QPushButton" name="saveButton">
      <property name="text">
       <string>Speichern</string>
@@ -68,8 +68,15 @@
    <item row="1" column="1">
     <widget class="QLineEdit" name="drName"/>
    </item>
+   <item row="5" column="1">
+    <widget class="QLineEdit" name="phone"/>
+   </item>
    <item row="2" column="3">
-    <widget class="QSpinBox" name="housenumber"/>
+    <widget class="QSpinBox" name="housenumber">
+     <property name="maximum">
+      <number>10000</number>
+     </property>
+    </widget>
    </item>
    <item row="3" column="0">
     <widget class="QLabel" name="label_3">
@@ -82,7 +89,14 @@
     <widget class="QLineEdit" name="street"/>
    </item>
    <item row="4" column="1">
-    <widget class="QLineEdit" name="phone"/>
+    <widget class="QLineEdit" name="plz"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Postleitzahl</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
