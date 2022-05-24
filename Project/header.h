@@ -20,7 +20,9 @@ enum MessageHeader {
 
     //entity Types e.g. Appointment etc;  to be completed
 
-    AppointmentEnt
+    AppointmentEnt,
+
+    DoctorEnt
 
 
 };

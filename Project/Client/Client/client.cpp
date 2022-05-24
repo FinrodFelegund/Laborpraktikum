@@ -1,7 +1,7 @@
 #include "client.h"
 #include "../../header.h"
 
-Client::Client()
+Client::Client(): my_user_id(-1)
 {
 
     m_clientSocket = new QTcpSocket();
@@ -19,6 +19,8 @@ Client::Client()
         }
 
     krypter = new Krypter;
+
+    my_user_id = 1; //has to be set after login
 }
 
 Client::~Client()
@@ -66,6 +68,7 @@ void Client::readSocket()
 void Client::sendMessage(QByteArray header, QString message)
 {
 
+    message += QString::number(my_user_id)+";"; //Add User ID here for safty so all messages have the same ID
 
     //lets try the krypto class
     std::string test = message.toStdString();

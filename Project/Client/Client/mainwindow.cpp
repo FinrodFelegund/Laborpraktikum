@@ -10,17 +10,21 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_appointment = new Appointment();
     m_reportScreen = new ReportScreen();
+    m_doctors = new Doctors();
     widgets.push_back(m_appointment);
     widgets.push_back(m_appointment);
+    widgets.push_back(m_doctors);
 
 
     ui->stackedWidget->insertWidget(0, m_appointment);
     ui->stackedWidget->insertWidget(1, m_reportScreen);
+    ui->stackedWidget->insertWidget(2,m_doctors);
 
     client = new Client();
     qDebug() << "client created";
     connect(m_appointment, &Appointment::messageCreated, client, &Client::sendMessage);
     //connect(m_reportScreen, &ReportScreen::messageCreated, client, &Client::sendMessage);
+    connect(m_doctors, &Doctors::messageCreated, client, &Client::sendMessage);
 
 
 }
@@ -48,4 +52,10 @@ void MainWindow::on_reportButton_clicked()
 
 
 
+
+
+void MainWindow::on_docButton_clicked()
+{
+    ui->stackedWidget->setCurrentWidget(m_doctors);
+}
 

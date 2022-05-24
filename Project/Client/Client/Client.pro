@@ -15,6 +15,7 @@ INCLUDEPATH += C:\Users\User\Documents\LPR\Laborpraktikum\Project\openssl-3\x64\
 SOURCES += \
     appointment.cpp \
     client.cpp \
+    doctors.cpp \
     main.cpp \
     mainwindow.cpp \
     reportscreen.cpp \
@@ -23,12 +24,14 @@ SOURCES += \
 HEADERS += \
     appointment.h \
     client.h \
+    doctors.h \
     mainwindow.h \
     reportscreen.h \
     ../../header.h
 
 FORMS += \
     appointment.ui \
+    doctors.ui \
     mainwindow.ui \
     reportscreen.ui
 

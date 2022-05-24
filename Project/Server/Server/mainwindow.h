@@ -48,6 +48,8 @@ private slots:
 
 
 private:
+    void saveDoctorInDb(QString message);
+
     Ui::MainWindow *ui;
     QTcpServer *m_server;
     QSet<QTcpSocket*> m_connection_set;

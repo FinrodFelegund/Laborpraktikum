@@ -9,6 +9,7 @@
 #include "appointment.h"
 #include "reportscreen.h"
 #include "client.h"
+#include "doctors.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -31,11 +32,14 @@ private slots:
 
 
 
+    void on_docButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     Client *client;
     Appointment *m_appointment;
     ReportScreen *m_reportScreen;
+    Doctors *m_doctors;
     std::vector<QWidget*> widgets;
 };
 #endif // MAINWINDOW_H

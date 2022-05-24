@@ -138,6 +138,43 @@ void MainWindow::sendMessage(QTcpSocket *socket)
 
 }
 
+void MainWindow::saveDoctorInDb(QString message)
+{
+    QStringList docInfo = message.split(";");
+
+    QString name = docInfo[0];
+    QString street = docInfo[1];
+    int housenumber = docInfo[2].toInt();
+    QString city = docInfo[3];
+    int phonenumber = docInfo[4].toInt();
+    int user_id = docInfo[5].toInt();
+
+    if(user_id > -1){
+        if(db.open()){
+
+            QSqlQuery queryInsert(db);
+                        queryInsert.prepare("insert into doctors(doctorname, street, streetnumber, city, phone, uid) VALUES(?,?,?,?,?,?)");
+                        queryInsert.bindValue(0,name);
+                        queryInsert.bindValue(1,street);
+                        queryInsert.bindValue(2,housenumber);
+                        queryInsert.bindValue(3,city);
+                        queryInsert.bindValue(4,phonenumber);
+                        queryInsert.bindValue(5,user_id);
+
+                        qDebug()<<queryInsert.exec();
+                        QSqlError error= queryInsert.lastError();
+                        std::cout<<error.databaseText().toUtf8().constData();
+        }
+
+    }
+    else{
+        qDebug() << "User is not logged in";
+    }
+
+
+
+}
+
 void MainWindow::displayMessage(QString header, QByteArray buffer)
 {
 
@@ -156,6 +193,8 @@ void MainWindow::displayMessage(QString header, QByteArray buffer)
     buffer = buffer.mid(128);
 
     QString message = decrypt(buffer, cipherLength);
+
+    //std::cout<<message.toStdString()<<std::endl;
 
     //here we determine what the instruction from the client was
     switch(messageType)
@@ -183,7 +222,19 @@ void MainWindow::displayMessage(QString header, QByteArray buffer)
 
 void MainWindow::safeEntityToDatabase(int entityType, int cipherLength, QByteArray buffer)
 {
+    QString message = decrypt(buffer, cipherLength);
 
+    switch (entityType) {
+    case MessageHeader::AppointmentEnt:
+
+        break;
+    case MessageHeader::DoctorEnt:
+        saveDoctorInDb(message);
+        break;
+    default:
+        qDebug()<<"No entity type";
+        break;
+    }
 }
 
 QString MainWindow::decrypt(QByteArray buffer, int cipherLength)
@@ -209,7 +260,7 @@ QString MainWindow::decrypt(QByteArray buffer, int cipherLength)
 
     qDebug() << message;
 
-    return "message";
+    return message;
 
 
 }

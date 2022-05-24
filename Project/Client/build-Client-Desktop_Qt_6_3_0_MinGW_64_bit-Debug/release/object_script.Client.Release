@@ -1,10 +1,12 @@
 release/appointment.o
 release/client.o
+release/doctors.o
 release/main.o
 release/mainwindow.o
 release/reportscreen.o
 release/header.o
 release/moc_appointment.o
 release/moc_client.o
+release/moc_doctors.o
 release/moc_mainwindow.o
 release/moc_reportscreen.o

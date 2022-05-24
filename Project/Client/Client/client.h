@@ -28,6 +28,7 @@ private:
     std::string IPAdress;
     int portNumber;
     Krypter *krypter;
+    int my_user_id;
 };
 
 #endif // CLIENT_H

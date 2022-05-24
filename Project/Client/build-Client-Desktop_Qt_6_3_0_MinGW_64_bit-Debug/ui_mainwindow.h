@@ -28,16 +28,16 @@ class Ui_MainWindow
 {
 public:
     QWidget *centralWidget;
-    QWidget *verticalLayoutWidget;
+    QHBoxLayout *horizontalLayout;
+    QVBoxLayout *verticalLayout;
+    QPushButton *appointmentButton;
+    QPushButton *reportButton;
+    QPushButton *docButton;
+    QSpacerItem *verticalSpacer;
     QVBoxLayout *verticalLayout_4;
     QStackedWidget *stackedWidget;
     QWidget *page_5;
     QWidget *page_6;
-    QWidget *horizontalLayoutWidget;
-    QHBoxLayout *horizontalLayout_3;
-    QPushButton *appointmentButton;
-    QSpacerItem *horizontalSpacer;
-    QPushButton *reportButton;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -51,15 +51,39 @@ public:
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         centralWidget->setMaximumSize(QSize(746, 16777215));
-        verticalLayoutWidget = new QWidget(centralWidget);
-        verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
-        verticalLayoutWidget->setGeometry(QRect(0, 9, 741, 341));
-        verticalLayout_4 = new QVBoxLayout(verticalLayoutWidget);
+        horizontalLayout = new QHBoxLayout(centralWidget);
+        horizontalLayout->setSpacing(6);
+        horizontalLayout->setContentsMargins(11, 11, 11, 11);
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        verticalLayout = new QVBoxLayout();
+        verticalLayout->setSpacing(6);
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        appointmentButton = new QPushButton(centralWidget);
+        appointmentButton->setObjectName(QString::fromUtf8("appointmentButton"));
+
+        verticalLayout->addWidget(appointmentButton);
+
+        reportButton = new QPushButton(centralWidget);
+        reportButton->setObjectName(QString::fromUtf8("reportButton"));
+
+        verticalLayout->addWidget(reportButton);
+
+        docButton = new QPushButton(centralWidget);
+        docButton->setObjectName(QString::fromUtf8("docButton"));
+
+        verticalLayout->addWidget(docButton);
+
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout->addItem(verticalSpacer);
+
+
+        horizontalLayout->addLayout(verticalLayout);
+
+        verticalLayout_4 = new QVBoxLayout();
         verticalLayout_4->setSpacing(6);
-        verticalLayout_4->setContentsMargins(11, 11, 11, 11);
         verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
-        verticalLayout_4->setContentsMargins(0, 0, 0, 0);
-        stackedWidget = new QStackedWidget(verticalLayoutWidget);
+        stackedWidget = new QStackedWidget(centralWidget);
         stackedWidget->setObjectName(QString::fromUtf8("stackedWidget"));
         page_5 = new QWidget();
         page_5->setObjectName(QString::fromUtf8("page_5"));
@@ -70,27 +94,8 @@ public:
 
         verticalLayout_4->addWidget(stackedWidget);
 
-        horizontalLayoutWidget = new QWidget(centralWidget);
-        horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(20, 370, 721, 80));
-        horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget);
-        horizontalLayout_3->setSpacing(6);
-        horizontalLayout_3->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
-        horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
-        appointmentButton = new QPushButton(horizontalLayoutWidget);
-        appointmentButton->setObjectName(QString::fromUtf8("appointmentButton"));
 
-        horizontalLayout_3->addWidget(appointmentButton);
-
-        horizontalSpacer = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_3->addItem(horizontalSpacer);
-
-        reportButton = new QPushButton(horizontalLayoutWidget);
-        reportButton->setObjectName(QString::fromUtf8("reportButton"));
-
-        horizontalLayout_3->addWidget(reportButton);
+        horizontalLayout->addLayout(verticalLayout_4);
 
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
@@ -114,6 +119,7 @@ public:
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "QTCPClient", nullptr));
         appointmentButton->setText(QCoreApplication::translate("MainWindow", "Appointment", nullptr));
         reportButton->setText(QCoreApplication::translate("MainWindow", "Report", nullptr));
+        docButton->setText(QCoreApplication::translate("MainWindow", "Arzt", nullptr));
     } // retranslateUi
 
 };

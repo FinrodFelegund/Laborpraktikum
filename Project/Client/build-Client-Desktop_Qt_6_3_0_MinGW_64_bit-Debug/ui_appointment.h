@@ -16,6 +16,7 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTextEdit>
+#include <QtWidgets/QTimeEdit>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -30,12 +31,13 @@ public:
     QLabel *label_3;
     QTextEdit *freeText;
     QPushButton *buttonSend;
+    QTimeEdit *appointmentTime;
 
     void setupUi(QWidget *Appointment)
     {
         if (Appointment->objectName().isEmpty())
             Appointment->setObjectName(QString::fromUtf8("Appointment"));
-        Appointment->resize(400, 300);
+        Appointment->resize(393, 414);
         date = new QDateEdit(Appointment);
         date->setObjectName(QString::fromUtf8("date"));
         date->setGeometry(QRect(10, 50, 110, 22));
@@ -57,6 +59,9 @@ public:
         buttonSend = new QPushButton(Appointment);
         buttonSend->setObjectName(QString::fromUtf8("buttonSend"));
         buttonSend->setGeometry(QRect(210, 170, 100, 32));
+        appointmentTime = new QTimeEdit(Appointment);
+        appointmentTime->setObjectName(QString::fromUtf8("appointmentTime"));
+        appointmentTime->setGeometry(QRect(10, 80, 111, 22));
 
         retranslateUi(Appointment);
 
