@@ -28,6 +28,9 @@ Client::~Client()
     if(m_clientSocket->isOpen())
         m_clientSocket->close();
 
+    if(krypter)
+        delete krypter;
+
 }
 
 
@@ -67,39 +70,24 @@ void Client::readSocket()
 
 void Client::sendMessage(QByteArray header, QString message)
 {
-
+    qDebug() << "Came this far";
+    qDebug();
     message += QString::number(my_user_id)+";"; //Add User ID here for safty so all messages have the same ID
 
-    //lets try the krypto class
-    std::string test = message.toStdString();
-    unsigned char *mes = (unsigned char*) test.c_str();
-    int text_len = strlen((const char*) mes);
-    unsigned char cipher[300];
+    qDebug() << message;
 
+    int length = 0;
+    QByteArray messageToSend = encrypt(message, &length);
 
+    //QString decyphered = decrypt(messageToSend, length);
 
-    int length = krypter->encrypt(mes, text_len, cipher);
+    //qDebug() << decyphered;
 
-    for(int i = 0; i < length; i++)
-        printf("%d ", cipher[i]);
 
     //last entry of header consists of cipher length
     header.append(QString::number(length).toUtf8() + ",");
     header.resize(128);
 
-    message.clear();
-    for(int i = 0; i < length; i++)
-    {
-        message.append((const char)cipher[i]);
-    }
-
-    qDebug() << "Encrypted Message " << message << " Encryption Length in Client: " << length;
-
-
-
-    QByteArray messageToSend;
-    messageToSend = message.toUtf8();
-    qDebug() << "Utf8 encoded: " << messageToSend;
     messageToSend.prepend(header);
 
     if(m_clientSocket)
@@ -112,6 +100,57 @@ void Client::sendMessage(QByteArray header, QString message)
             socketStream << messageToSend;
         }
     }
+}
+
+
+QString Client::decrypt(QByteArray buffer, int cipherLength)
+{
+    unsigned char buf[300];
+    unsigned char plainText[300];
+    //qDebug() << "Server Utf8 encoded: " << buffer;
+    //qDebug() << "Cipher Length in decryption: " << cipherLength;
+    QString cipher = QString::fromUtf8(buffer);
+
+    for(int i = 0; i < cipherLength; i++)
+    {
+        buf[i] = cipher[i].toLatin1();
+    }
+
+
+    krypter->decrypt(buf, cipherLength, plainText);
+
+    QString message = QString::fromUtf8((char*)plainText);
+
+
+    return message;
+
+
+}
+
+QByteArray Client::encrypt(QString buffer, int* cipherLength)
+{
+    std::string sequence = buffer.toStdString();
+    unsigned char *text = (unsigned char*)sequence.c_str();
+    int textLength = strlen((const char*)text);
+    unsigned char cipherText[300];
+
+    *cipherLength = krypter->encrypt(text, textLength, cipherText);
+
+    QByteArray returnMessage;
+
+    buffer.clear();
+    for(int i = 0; i < *cipherLength; i++){
+        buffer.append((const char) cipherText[i]);
+    }
+
+
+    returnMessage = buffer.toUtf8();
+
+
+    //qDebug() << "Client Utf8 encoded " <<returnMessage;
+    //qDebug() << "Cipher Length in encryption: " << *cipherLength;
+
+    return returnMessage;
 }
 
 

@@ -8,8 +8,10 @@
 #include <openssl/err.h>
 
 
-// a header consists of 2 or 1 of these types 
-enum MessageHeader {
+
+// a header consists of 2 of these types
+enum MessageHeader
+{
 
     //message Types
     saveMessage,
@@ -18,27 +20,88 @@ enum MessageHeader {
 
     returnMessageArray,
 
+
+
     //entity Types e.g. Appointment etc;  to be completed
 
     AppointmentEnt,
 
     DoctorEnt
 
+};
+
+enum FromServerToClient
+{
+    Appointments,
+
+    Doctor
+
 
 };
 
 
 
-class AppointmentEntity
+class Entity
 {
     public:
+    Entity(){};
+    ~Entity(){};
+
+    virtual QString getPropertiesAsString() = 0;
+    virtual void setPropertiesAsEntity(QStringList list) = 0;
+};
+
+class AppointmentEntity : public Entity
+{
+    public:
+
     AppointmentEntity(){};
     ~AppointmentEntity(){};
+    void setProperties(QString date, QString time, QString doctorID, QString title, QString text);
+    void setPropertiesAsEntity(QStringList list);
+    QString getPropertiesAsString();
+    QString getDate();
+    QString getTime();
+    QString getDoctorID();
+    QString getTitle();
+    QString getText();
+
+    private:
+
     QString date;
-    QString doctor;
+    QString time;
+    QString doctorID;
+    QString title;
     QString text;
 
 
+
+};
+
+class DoctorEntity : public Entity
+{
+    public:
+
+    DoctorEntity(){};
+    ~DoctorEntity(){};
+    void setProperties(QString name, QString street, QString streetNumber, QString city, QString postalCode, QString phoneNumber);
+    void setPropertiesAsEntity(QStringList list);
+    QString getPropertiesAsString();
+    QString getName();
+    QString getStreet();
+    QString getStreetNumber();
+    QString getCity();
+    QString getPostalCode();
+    QString getPhoneNumber();
+
+    private:
+
+    QString name;
+    QString street;
+    QString streetNumber;
+    QString city;
+    QString postalCode;
+    QString phoneNumber;
 
 };
 
