@@ -1,6 +1,11 @@
 Project/openssl-3
-Project\Server\build-Server-Desktop_Qt_6_3_0_MinGW_64_bit-Debug
+Project/Server/build-Server-Desktop_Qt_6_3_0_MinGW_64_bit-Debug
 .DS_Store
 Project/Server/build-Server-Desktop_Qt_6_3_0_MinGW_64_bit-Debug
 Project/Client/build-Client-Desktop_Qt_6_3_0_MinGW_64_bit-Debug
-Project\Client\build-Client-Desktop_Qt_6_3_0_MinGW_64_bit-Debug
+Project/Client/build-Client-Desktop_Qt_6_3_0_MinGW_64_bit-Debug
+Project/Server/Server/Server.pro
+Project/Server/Server/Server.pro.user
+Project/Server/Server/*.dll
+Project/Client/Client/Client.pro
+Project/Client/Client/Client.pro.user
