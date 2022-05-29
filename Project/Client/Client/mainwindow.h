@@ -10,6 +10,8 @@
 #include "reportscreen.h"
 #include "client.h"
 #include "doctors.h"
+#include "OpeningScreen/openingscreen.h"
+#include "OpeningScreen/openingmodel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -30,8 +32,6 @@ private slots:
 
     void on_appointmentButton_clicked();
 
-
-
     void on_docButton_clicked();
 
 private:
@@ -40,6 +40,8 @@ private:
     Appointment *m_appointment;
     ReportScreen *m_reportScreen;
     Doctors *m_doctors;
+    OpeningModel *m_openingModel;
+    OpeningScreen * m_openingScreen;
     std::vector<QWidget*> widgets;
 };
 #endif // MAINWINDOW_H

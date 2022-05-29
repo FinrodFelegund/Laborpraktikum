@@ -15,8 +15,6 @@ public:
     Client();
     ~Client();
 
-    QString decrypt(QByteArray buffer, int cipherLength);
-    QByteArray encrypt(QString buffer, int* cipherLength);
 
 private slots:
 

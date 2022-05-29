@@ -45,8 +45,6 @@ void Appointment::createAppointmentMessage()
 
     //QString message = date + ";" + doctor + ";" + text + ";" + this->userID + ";";
     QString message = date + ";" + time + ";" + title + ";"+ notes + ";"+ QString::number(doctor) + ";";
-    QByteArray messageToSend = message.toUtf8();
-    messageToSend.prepend(header);
 
     emit messageCreated(header, message);
 

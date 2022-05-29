@@ -65,23 +65,17 @@ void Client::displayError(QAbstractSocket::SocketError socketError)
 
 void Client::readSocket()
 {
-    //here we must interpret the header and create an entity accordingly. Appointment, Report, etc...
+    //here we must interpret the header and create an entity accordingly. Appointment, Report, etc... or just confirm if an action performed was successful
 }
 
 void Client::sendMessage(QByteArray header, QString message)
 {
-    qDebug() << "Came this far";
-    qDebug();
+
     message += QString::number(my_user_id)+";"; //Add User ID here for safty so all messages have the same ID
 
-    qDebug() << message;
-
     int length = 0;
-    QByteArray messageToSend = encrypt(message, &length);
+    QByteArray messageToSend = krypter->encrypt(message, &length);
 
-    //QString decyphered = decrypt(messageToSend, length);
-
-    //qDebug() << decyphered;
 
 
     //last entry of header consists of cipher length
@@ -95,62 +89,12 @@ void Client::sendMessage(QByteArray header, QString message)
         if(m_clientSocket->isOpen())
         {
             QDataStream socketStream(m_clientSocket);
-            socketStream.setVersion(QDataStream::Qt_5_15);
+            socketStream.setVersion(QDataStream::Qt_6_3);
 
             socketStream << messageToSend;
         }
     }
 }
 
-
-QString Client::decrypt(QByteArray buffer, int cipherLength)
-{
-    unsigned char buf[300];
-    unsigned char plainText[300];
-    //qDebug() << "Server Utf8 encoded: " << buffer;
-    //qDebug() << "Cipher Length in decryption: " << cipherLength;
-    QString cipher = QString::fromUtf8(buffer);
-
-    for(int i = 0; i < cipherLength; i++)
-    {
-        buf[i] = cipher[i].toLatin1();
-    }
-
-
-    krypter->decrypt(buf, cipherLength, plainText);
-
-    QString message = QString::fromUtf8((char*)plainText);
-
-
-    return message;
-
-
-}
-
-QByteArray Client::encrypt(QString buffer, int* cipherLength)
-{
-    std::string sequence = buffer.toStdString();
-    unsigned char *text = (unsigned char*)sequence.c_str();
-    int textLength = strlen((const char*)text);
-    unsigned char cipherText[300];
-
-    *cipherLength = krypter->encrypt(text, textLength, cipherText);
-
-    QByteArray returnMessage;
-
-    buffer.clear();
-    for(int i = 0; i < *cipherLength; i++){
-        buffer.append((const char) cipherText[i]);
-    }
-
-
-    returnMessage = buffer.toUtf8();
-
-
-    //qDebug() << "Client Utf8 encoded " <<returnMessage;
-    //qDebug() << "Cipher Length in encryption: " << *cipherLength;
-
-    return returnMessage;
-}
 
 

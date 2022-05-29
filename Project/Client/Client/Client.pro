@@ -16,24 +16,35 @@ SOURCES += \
     appointment.cpp \
     client.cpp \
     doctors.cpp \
+    OpeningScreen/login.cpp \
     main.cpp \
     mainwindow.cpp \
+    OpeningScreen/openingscreen.cpp \
+    OpeningScreen/openingmodel.cpp \
     reportscreen.cpp \
-    ../../header.cpp
+    ../../header.cpp \
+    OpeningScreen/signup.cpp
 
 HEADERS += \
     appointment.h \
     client.h \
     doctors.h \
+    OpeningScreen/login.h \
     mainwindow.h \
+    OpeningScreen/openingscreen.h \
+    OpeningScreen/openingmodel.h \
     reportscreen.h \
-    ../../header.h
+    ../../header.h \
+    OpeningScreen/signup.h
 
 FORMS += \
     appointment.ui \
     doctors.ui \
+    OpeningScreen/login.ui \
     mainwindow.ui \
-    reportscreen.ui
+    OpeningScreen/openingscreen.ui \
+    reportscreen.ui \
+    OpeningScreen/signup.ui
 
 
 

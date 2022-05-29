@@ -34,8 +34,7 @@ public:
     ~MainWindow();
 
     void createEntityAndSafeToDatabase(int entityType, int cipherLength, QByteArray buffer);
-    QString decrypt(QByteArray buffer, int cipherLength);
-    QByteArray encrypt(QString buffer, int *cipherLength);
+
 
 signals:
     void newMessage(QString header, QByteArray message, long long socketDescriptor);
