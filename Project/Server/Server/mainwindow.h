@@ -19,6 +19,7 @@ class Krypter;
 class AppointmentEntity;
 class DoctorEntity;
 class Entity;
+class User;
 
 
 QT_BEGIN_NAMESPACE
@@ -33,7 +34,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void createEntityAndSafeToDatabase(int entityType, int cipherLength, QByteArray buffer);
+
 
 
 signals:
@@ -47,7 +48,7 @@ private slots:
     void displayError(QAbstractSocket::SocketError socketError);
 
     void displayMessage(QString header, QByteArray str, long long socketDescriptor);
-    void sendMessage(QTcpSocket *socket, std::vector<std::shared_ptr<Entity>> entities, int entitiyType);
+    void sendMessage(QTcpSocket *socket, std::vector<std::shared_ptr<Entity>> entities, QByteArray header);
 
 
 
@@ -56,12 +57,17 @@ private:
     //Database functions that save an Entity
     void saveDoctorInDb(DoctorEntity ent, QString user_id);
     void saveAppointmentInDb(AppointmentEntity ent, QString user_id);
+    int findUserInDatabase(User user);
 
     //Database functions that return Entities
     std::vector<std::shared_ptr<Entity>> selectAppointmentsFromDatabase(QString userID);
 
 
     void returnEntityFromDatabaseWithGivenUserID(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);
+    void createEntityAndSafeToDatabase(int entityType, int cipherLength, QByteArray buffer);
+    void loginUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);
+
+    QTcpSocket * getSocket(long long socketDescriptor);
 
     Ui::MainWindow *ui;
     QTcpServer *m_server;

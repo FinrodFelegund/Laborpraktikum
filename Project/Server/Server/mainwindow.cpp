@@ -175,8 +175,11 @@ void MainWindow::displayMessage(QString header, QByteArray buffer, long long soc
         break;
 
         case MessageHeader::loginRequest:
-        qDebug() << "Login Request received";
-
+        {
+            qDebug() << "Login Request received";
+            loginUserAndReturnStatus(entityType, cipherLength, buffer, socketDescriptor);
+            break;
+        }
 
         default:
         break;
@@ -185,12 +188,41 @@ void MainWindow::displayMessage(QString header, QByteArray buffer, long long soc
 
 }
 
+void MainWindow::loginUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor)
+{
+
+    QTcpSocket *receiver = getSocket(socketDescriptor);
+    QString message = krypter->decrypt(buffer, cipherLength);
+    QStringList list = message.split(",");
+    User user;
+    user.setPropertiesAsEntity(list);
+    //... find the user with given credentails
+
+    int userID = findUserInDatabase(user);
+
+    //User ID = 0 means user not in database, everything else is userID
+    list.clear();
+    list.append(QString::number(userID));
+    list.append(user.getEmail());
+    list.append(user.getPassword());
+    QByteArray header;
+    header.append(QString::number(MessageHeader::loginRequest).toUtf8() + ",");
+    header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
+    std::vector<std::shared_ptr<Entity>> ent(1);
+    ent[0] = std::make_shared<User>();
+    ent[0]->setPropertiesAsEntity(list);
+
+    qDebug() << "made it till return login request ";
+    ent[0]->print();
+    sendMessage(receiver, ent, header);
+}
+
 
 void MainWindow::createEntityAndSafeToDatabase(int entityType, int cipherLength, QByteArray buffer)
 {
 
     QString message = krypter->decrypt(buffer, cipherLength);
-    QStringList list = message.split(";");
+    QStringList list = message.split(",");
 
 
     switch (entityType)
@@ -219,17 +251,9 @@ void MainWindow::createEntityAndSafeToDatabase(int entityType, int cipherLength,
 void MainWindow::returnEntityFromDatabaseWithGivenUserID(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor)
 {
     QString message = krypter->decrypt(buffer, cipherLength);
-    QStringList list = message.split(";");
+    QStringList list = message.split(",");
 
-    QTcpSocket *receiver = nullptr;
-    for(QTcpSocket *w : m_connection_set)
-    {
-        if( w->socketDescriptor() == socketDescriptor)
-        {
-            receiver = w;
-            break;
-        }
-    }
+    QTcpSocket *receiver = getSocket(socketDescriptor);
 
     switch(entityType)
     {
@@ -239,7 +263,9 @@ void MainWindow::returnEntityFromDatabaseWithGivenUserID(int entityType, int cip
             QString userID = list[0];
             std::vector<std::shared_ptr<Entity>> appointments = selectAppointmentsFromDatabase(userID);
             //2. send them back via Socket
-            sendMessage(receiver, appointments, FromServerToClient::Appointments);
+            QByteArray header;
+            header.append(QString::number(MessageHeader::AppointmentEnt).toUtf8());
+            sendMessage(receiver, appointments, header);
             break;
         }
 
@@ -256,7 +282,7 @@ void MainWindow::returnEntityFromDatabaseWithGivenUserID(int entityType, int cip
 
 
 
-void MainWindow::sendMessage(QTcpSocket *socket, std::vector<std::shared_ptr<Entity>> entities, int entityType)
+void MainWindow::sendMessage(QTcpSocket *socket, std::vector<std::shared_ptr<Entity>> entities, QByteArray header)
 {
     int size = entities.size();
     QString buffer;
@@ -271,9 +297,8 @@ void MainWindow::sendMessage(QTcpSocket *socket, std::vector<std::shared_ptr<Ent
 
     //we created the buffer and we have the socket to which we want to send our data
 
-    QByteArray header;
-    header.append(QString::number(entityType).toUtf8());
-    header.append(QString::number(cipherLength).toUtf8());
+    //QByteArray header;
+    header.append(QString::number(cipherLength).toUtf8() + ",");
     header.resize(128);
 
     QByteArray message;
@@ -356,26 +381,67 @@ void MainWindow::saveAppointmentInDb(AppointmentEntity ent, QString user_id)
 {
 
     if(user_id.toInt() > -1){
-        if(db.open()){
+        if(db.open())
+        {
 
             QSqlQuery queryInsert(db);
-                        queryInsert.prepare("insert into appointments(appdate,apptime,title,notes,did,uid) values(?,?,?,?,?,?)");
-                        queryInsert.bindValue(0,QDate::fromString(ent.getDate()));
-                        queryInsert.bindValue(1,QTime::fromString(ent.getTime()));
-                        queryInsert.bindValue(2,ent.getTitle());
-                        queryInsert.bindValue(3,ent.getTitle());
-                        queryInsert.bindValue(4,ent.getDoctorID());
-                        queryInsert.bindValue(5,user_id);
+            queryInsert.prepare("insert into appointments(appdate,apptime,title,notes,did,uid) values(?,?,?,?,?,?)");
+            queryInsert.bindValue(0,QDate::fromString(ent.getDate()));
+            queryInsert.bindValue(1,QTime::fromString(ent.getTime()));
+            queryInsert.bindValue(2,ent.getTitle());
+            queryInsert.bindValue(3,ent.getTitle());
+            queryInsert.bindValue(4,ent.getDoctorID());
+            queryInsert.bindValue(5,user_id);
 
-                        qDebug()<<queryInsert.exec();
-                        QSqlError error= queryInsert.lastError();
-                        qDebug() <<error.databaseText().toUtf8().constData();
+            qDebug()<<queryInsert.exec();
+            QSqlError error= queryInsert.lastError();
+            qDebug() <<error.databaseText().toUtf8().constData();
         }
 
     }
     else{
         qDebug() << "User is not logged in";
     }
+}
+
+int MainWindow::findUserInDatabase(User user)
+{
+    if(db.open())
+    {
+        QSqlQuery queryFind(db);
+        queryFind.prepare("select * from Users where email = '" +user.getEmail()+ "' ");
+
+        qDebug() << queryFind.exec();
+        QSqlError error = queryFind.lastError();
+        if(error.isValid())
+            qDebug() << "In Find User Query: " << error.databaseText().toUtf8().constData();
+
+        int userID = 0;
+        queryFind.next();
+        {
+            userID = queryFind.value(0).toInt();
+        }
+
+        return userID;
+    }
+
+    return 0;
+}
+
+QTcpSocket* MainWindow::getSocket(long long socketDescriptor)
+{
+    QTcpSocket *receiver;
+    for(QTcpSocket *w : m_connection_set)
+    {
+        if(w->socketDescriptor() == socketDescriptor)
+        {
+            receiver = w;
+            return receiver;
+        }
+
+    }
+
+    return nullptr;
 }
 
 

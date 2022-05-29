@@ -44,7 +44,7 @@ void Appointment::createAppointmentMessage()
 
 
     //QString message = date + ";" + doctor + ";" + text + ";" + this->userID + ";";
-    QString message = date + ";" + time + ";" + title + ";"+ notes + ";"+ QString::number(doctor) + ";";
+    QString message = date + "," + time + "," + title + ","+ notes + ","+ QString::number(doctor) + "," + ";";
 
     emit messageCreated(header, message);
 

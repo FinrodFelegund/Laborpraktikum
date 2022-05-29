@@ -7,6 +7,7 @@
 
 
 class Krypter;
+class User;
 
 class Client : public QObject
 {
@@ -14,7 +15,8 @@ class Client : public QObject
 public:
     Client();
     ~Client();
-
+    void processNewMessage(QString header, QByteArray buffer);
+    User createUserFromBuffer();
 
 private slots:
 
@@ -23,6 +25,11 @@ private slots:
 public slots:
     void sendMessage(QByteArray header, QString message);
     void readSocket();
+
+signals:
+    void pendingLoginRequest(QString buf, int messageType);
+
+
 
 private:
     QTcpSocket *m_clientSocket;

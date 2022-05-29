@@ -22,7 +22,7 @@ enum MessageHeader
 
     loginRequest,
 
-    signUp,
+    signUpRequest,
 
 
     //entity Types e.g. Appointment etc;  to be completed
@@ -32,15 +32,6 @@ enum MessageHeader
     DoctorEnt,
 
     UserEnt
-
-};
-
-enum FromServerToClient
-{
-    Appointments = 0,
-
-    Doctor
-
 
 };
 

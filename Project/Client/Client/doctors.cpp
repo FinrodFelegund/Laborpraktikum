@@ -43,8 +43,8 @@ void Doctors::createDoctorMessage()
     header.prepend(QString::number(messageEntity).toUtf8() + ",");
     header.prepend(QString::number(messageType).toUtf8() + ",");
 
-    QString message = name + ";" + street + ";" + housenumber
-            + ";" + city + ";" + plz + ";" + phonenumber + ";" ;
+    QString message = name + "," + street + "," + housenumber
+            + "," + city + "," + plz + "," + phonenumber + "," + ";";
 
     QByteArray messageToSend = message.toUtf8();
     messageToSend.prepend(header);

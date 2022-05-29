@@ -50,8 +50,31 @@ void OpeningModel::sendLoginRequest()
 
 }
 
-void OpeningModel::receiveMessage()
+void OpeningModel::receiveMessage(QString buffer, int messageType)
 {
+    QStringList list = buffer.split(",");
+    m_user->setPropertiesAsEntity(list);
 
+    switch(messageType)
+    {
+        case MessageHeader::loginRequest:
+        {
+
+            if(m_user->getUID().toInt() != 0)
+            {
+                emit sendLoginProgress(true);
+                //emit leaveLoginAndSetUserID(m_user->getUID());
+            }
+            else if (m_user->getUID().toInt() == 0)
+            {
+                emit sendLoginProgress(false);
+            }
+
+
+
+
+
+        }
+    }
 }
 

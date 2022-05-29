@@ -20,9 +20,10 @@ public:
 
 signals:
     void messageCreated(QByteArray header, QString message);
+    void sendLoginProgress(bool progress);
 
 public slots:
-    void receiveMessage();
+    void receiveMessage(QString buffer, int messageType);
 
 
 private:

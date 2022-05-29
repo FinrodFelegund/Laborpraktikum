@@ -88,11 +88,11 @@ int Krypter::encrypt(unsigned char *text, int text_len, unsigned char *cipher)
 
     cipher_len += len;
 
-    printf("Encryption in Krypter Class\n");
+    /*printf("Encryption in Krypter Class\n");
     for(int i = 0; i < cipher_len; i++){
         printf("%d ", cipher[i]);
     }
-    printf("\n");
+    printf("\n");*/
 
     return cipher_len;
 

@@ -34,8 +34,8 @@ void Login::on_pushButton_Login_clicked()
     if(ui->lineEdit_password->text().isEmpty() && ui->lineEdit_email->text().isEmpty())
         return;
 
-    eMail = ui->lineEdit_password->text();
-    password = ui->lineEdit_email->text();
+    password = ui->lineEdit_password->text();
+    eMail = ui->lineEdit_email->text();
 
     emit loginUser();
 }
@@ -49,4 +49,3 @@ QString Login::getPassword() const
 {
     return password;
 }
-

@@ -66,6 +66,32 @@ void Client::displayError(QAbstractSocket::SocketError socketError)
 void Client::readSocket()
 {
     //here we must interpret the header and create an entity accordingly. Appointment, Report, etc... or just confirm if an action performed was successful
+    qDebug() << "new Message received";
+    QTcpSocket *socket = reinterpret_cast<QTcpSocket*>(sender());
+    QByteArray buffer;
+
+
+    QDataStream socketStream(socket);
+    socketStream.setVersion(QDataStream::Qt_6_3);
+
+    socketStream.startTransaction();
+    socketStream >> buffer;
+
+    if(!socketStream.commitTransaction())
+    {
+            QString message = QString("%1 :: Waiting for more data to come..").arg(socket->socketDescriptor());
+
+            qDebug() << message;
+            return;
+
+    }
+
+
+    //here we cut the buffer in header and message and get socket Descriptor in case we have to send data back to client
+
+    QString header = buffer.mid(0, 128);
+    processNewMessage(header, buffer);
+
 }
 
 void Client::sendMessage(QByteArray header, QString message)
@@ -95,6 +121,35 @@ void Client::sendMessage(QByteArray header, QString message)
         }
     }
 }
+
+void Client::processNewMessage(QString header, QByteArray buffer)
+{
+    //qDebug() << "reached processNewMessage";
+    //qDebug() << header;
+    QStringList headerSplit = header.split(",");
+
+    int messageType = headerSplit[0].toInt();
+    int entityType = headerSplit[1].toInt();
+    int cipherLength = headerSplit[2].toInt();
+
+    //qDebug() << messageType << " " << entityType << " " << cipherLength;
+
+    buffer = buffer.mid(128);
+
+    switch(messageType)
+    {
+        case MessageHeader::loginRequest:
+        {
+            QString buf = krypter->decrypt(buffer, cipherLength);
+            emit pendingLoginRequest(buf, messageType);
+
+        }
+
+
+    }
+}
+
+
 
 
 
