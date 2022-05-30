@@ -4,8 +4,9 @@ use demoapp;
 create table Users(
 uid integer primary key auto_increment,
 email varchar(50) unique not null,
-passwort char(8) not null
+passwort char(32) not null
 );
+
 
 create table Doctors(
 did integer primary key auto_increment,
@@ -19,9 +20,10 @@ uid integer not null,
 Foreign key (uid) references Users(uid)  on delete cascade
 );
 
+
 create table Appointments(
 appdate date not null,
-apptime timestamp not null,
+apptime time not null,
 title varchar(50),
 notes varchar(200),
 aid integer auto_increment primary key,

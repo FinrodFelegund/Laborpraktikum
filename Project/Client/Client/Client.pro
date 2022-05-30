@@ -9,8 +9,11 @@ CONFIG += c++17
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-LIBS +=  -L/usr/local/Cellar/openssl@3/3.0.3/lib -lssl -lcrypto
-INCLUDEPATH += /usr/local/Cellar/openssl@3/3.0.3/include/
+#LIBS +=  -L/usr/local/Cellar/openssl@3/3.0.3/lib -lssl -lcrypto #Dani
+#INCLUDEPATH += /usr/local/Cellar/openssl@3/3.0.3/include/ #Dani
+
+LIBS +=  -LC:\Users\User\Documents\LPR\Laborpraktikum\Project\openssl-3\x64\lib -lssl -lcrypto #Hannah
+INCLUDEPATH += C:\Users\User\Documents\LPR\Laborpraktikum\Project\openssl-3\x64\include #Hannah
 
 SOURCES += \
     appointment.cpp \

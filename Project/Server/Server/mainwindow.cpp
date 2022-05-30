@@ -136,7 +136,67 @@ void MainWindow::displayError(QAbstractSocket::SocketError socketError){
 }
 
 
+bool MainWindow::saveDoctorInDb(DoctorEntity ent, QString user_id)
+{
+    if(user_id.toInt() > -1){
+        if(db.open()){
 
+            QSqlQuery queryInsert(db);
+                        queryInsert.prepare("insert into doctors(doctorname, street, streetnumber, city, plz, phone, uid) VALUES(?,?,?,?,?,?,?)");
+                        queryInsert.bindValue(0,ent.getName());
+                        queryInsert.bindValue(1,ent.getStreet());
+                        queryInsert.bindValue(2,ent.getStreetNumber());
+                        queryInsert.bindValue(3,ent.getCity());
+                        queryInsert.bindValue(4,ent.getPostalCode());
+                        queryInsert.bindValue(5,ent.getPhoneNumber());
+                        queryInsert.bindValue(6,user_id);
+
+                        bool executed = queryInsert.exec();
+                        qDebug()<<executed;
+                        QSqlError error= queryInsert.lastError();
+                        std::cout<<error.databaseText().toUtf8().constData();
+                        return executed;
+        }
+
+    }
+    else{
+        qDebug() << "User is not logged in";
+    }
+
+
+    return false;
+
+}
+
+bool MainWindow::saveAppointmentInDb(AppointmentEntity ent, QString user_id)
+{
+
+    if(user_id.toInt() > -1){
+        if(db.open()){
+
+            QSqlQuery queryInsert(db);
+                        queryInsert.prepare("insert into appointments(appdate,apptime,title,notes,did,uid) values(?,?,?,?,?,?)");
+                        queryInsert.bindValue(0,QDate::fromString(ent.getDate()));
+                        queryInsert.bindValue(1,QTime::fromString(ent.getTime()));
+                        queryInsert.bindValue(2,ent.getTitle());
+                        queryInsert.bindValue(3,ent.getText());
+                        queryInsert.bindValue(4,ent.getDoctorID());
+                        queryInsert.bindValue(5,user_id);
+
+                        bool executed = queryInsert.exec();
+                        qDebug()<<executed;
+                        QSqlError error= queryInsert.lastError();
+                        std::cout<<error.databaseText().toUtf8().constData();
+                        return executed;
+        }
+
+    }
+    else{
+        qDebug() << "User is not logged in";
+    }
+
+    return false;
+}
 
 void MainWindow::displayMessage(QString header, QByteArray buffer, long long socketDescriptor)
 {
@@ -164,14 +224,17 @@ void MainWindow::displayMessage(QString header, QByteArray buffer, long long soc
     switch(messageType)
     {
         case MessageHeader::saveMessage:
-        createEntityAndSafeToDatabase(entityType, cipherLength, buffer);
+        qDebug()<<"save Message - create Entity";
+        entityType=createEntityAndSafeToDatabase(entityType, cipherLength, buffer);
+        qDebug()<<"Entity created for: " + QString::number(entityType);
+        returnMessage(entityType,cipherLength,buffer,socketDescriptor);
         break;
 
         case MessageHeader::returnMessage:
-        //get all the entities of a certain type
-
+        returnMessage(entityType, cipherLength, buffer, socketDescriptor);
         //ToDo Hannah
-        returnEntityFromDatabaseWithGivenUserID(entityType, cipherLength, buffer, socketDescriptor);
+        //get all the entities of a certain type
+        //returnEntityFromDatabaseWithGivenUserID(entityType, cipherLength, buffer, socketDescriptor);
         break;
 
         case MessageHeader::loginRequest:
@@ -207,7 +270,7 @@ void MainWindow::loginUserAndReturnStatus(int entityType, int cipherLength, QByt
     list.append(user.getPassword());
     QByteArray header;
     header.append(QString::number(MessageHeader::loginRequest).toUtf8() + ",");
-    header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
+    //header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
     std::vector<std::shared_ptr<Entity>> ent(1);
     ent[0] = std::make_shared<User>();
     ent[0]->setPropertiesAsEntity(list);
@@ -218,27 +281,45 @@ void MainWindow::loginUserAndReturnStatus(int entityType, int cipherLength, QByt
 }
 
 
-void MainWindow::createEntityAndSafeToDatabase(int entityType, int cipherLength, QByteArray buffer)
+int MainWindow::createEntityAndSafeToDatabase(int entityType, int cipherLength, QByteArray buffer)
 {
+    qDebug() << "reached 'createEntityAndSafeToDatabase' function";
 
     QString message = krypter->decrypt(buffer, cipherLength);
+    qDebug()<<"Message: " + message;
     QStringList list = message.split(",");
+
+    MessageHeader result=MessageHeader::DoNothing;
 
 
     switch (entityType)
     {
         case MessageHeader::AppointmentEnt:
         {
+        qDebug()<< "create AppointmentEntity";
            AppointmentEntity ent;
            ent.setProperties(list[0], list[1], list[2], list[3], list[4]);
-           saveAppointmentInDb(ent, list[5]);
+           if(saveAppointmentInDb(ent, list[5])){
+               qDebug()<<"Appointment saved";
+               result=MessageHeader::AppointmentSaved;
+           } else{
+               qDebug()<<"Appointment not saved";
+               result = MessageHeader::AppointmentNotSaved;
+           }
            break;
         }
         case MessageHeader::DoctorEnt:
         {
+        qDebug()<<"create DoctorEntity";
             DoctorEntity ent;
             ent.setProperties(list[0], list[1], list[2], list[3], list[4], list[5]);
-            saveDoctorInDb(ent, list[6]);
+            if(saveDoctorInDb(ent, list[6])){
+                qDebug()<<"Doc saved";
+                result=MessageHeader::DoctorSaved;
+            } else{
+                qDebug()<<"Doc not saved";
+                result = MessageHeader::DoctorNotSaved;
+            }
             break;
         }
 
@@ -246,41 +327,68 @@ void MainWindow::createEntityAndSafeToDatabase(int entityType, int cipherLength,
             qDebug()<<"No entity type";
             break;
     }
+
+    return result;
 }
 
 void MainWindow::returnEntityFromDatabaseWithGivenUserID(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor)
 {
+//    QString message = krypter->decrypt(buffer, cipherLength);
+//    QStringList list = message.split(",");
+
+//    QTcpSocket *receiver = getSocket(socketDescriptor);
+
+//    switch(entityType)
+//    {
+//        case MessageHeader::AppointmentEnt:
+//        {
+//            //1. get all the appointments from database to fill them up in a calendar and send them back via socket; let this be a vector of appointments
+//            QString userID = list[0];
+//            std::vector<std::shared_ptr<Entity>> appointments = selectAppointmentsFromDatabase(userID);
+//            //2. send them back via Socket
+//            sendMessage(receiver, appointments, FromServerToClient::Appointments);
+//            break;
+//        }
+
+//        case MessageHeader::DoctorEnt:
+//        {
+//            //1. get a specific doctor back from database
+//            //2. send it back via Socket
+//        }
+
+
+
+//    }
+
+}
+
+void MainWindow::returnMessage(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor)
+{
     QString message = krypter->decrypt(buffer, cipherLength);
-    QStringList list = message.split(",");
+    QStringList list = message.split(";");
 
     QTcpSocket *receiver = getSocket(socketDescriptor);
 
-    switch(entityType)
-    {
-        case MessageHeader::AppointmentEnt:
-        {
-            //1. get all the appointments from database to fill them up in a calendar and send them back via socket; let this be a vector of appointments
-            QString userID = list[0];
-            std::vector<std::shared_ptr<Entity>> appointments = selectAppointmentsFromDatabase(userID);
-            //2. send them back via Socket
-            QByteArray header;
-            header.append(QString::number(MessageHeader::AppointmentEnt).toUtf8());
-            sendMessage(receiver, appointments, header);
-            break;
-        }
+    std::vector<std::shared_ptr<Entity>> emptyVec;
+    emptyVec.push_back(std::make_shared<DoctorEntity>());
 
-        case MessageHeader::DoctorEnt:
-        {
-            //1. get a specific doctor back from database
-            //2. send it back via Socket
-        }
+    QByteArray header;
 
-
-
+    switch (entityType) {
+    case MessageHeader::AppointmentEnt:
+    case MessageHeader::DoctorEnt:
+        break;
+    case MessageHeader::DoctorSaved:
+    case MessageHeader::DoctorNotSaved:
+    case MessageHeader::AppointmentSaved:
+    case MessageHeader::AppointmentNotSaved:
+        header.append(QString::number(entityType).toUtf8() + ",");
+        sendMessage(receiver,emptyVec,header);
+        break;
+    default:
+        break;
     }
 }
-
-
 
 void MainWindow::sendMessage(QTcpSocket *socket, std::vector<std::shared_ptr<Entity>> entities, QByteArray header)
 {
@@ -304,7 +412,6 @@ void MainWindow::sendMessage(QTcpSocket *socket, std::vector<std::shared_ptr<Ent
     QByteArray message;
     message.append(header);
     message.append(byteBuffer);
-
 
     if(socket)
     {
@@ -342,67 +449,6 @@ std::vector<std::shared_ptr<Entity>> MainWindow::selectAppointmentsFromDatabase(
     return ent;
 }
 
-
-void MainWindow::saveDoctorInDb(DoctorEntity ent, QString user_id)
-{
-
-
-    if(user_id.toInt() > -1){
-        if(db.open()){
-
-            ent.print();
-            QSqlQuery queryInsert(db);
-                        queryInsert.prepare("INSERT INTO Doctors(doctorname, street, streetnumber, city, plz, phone, uid)"
-                                            "VALUES(?,?,?,?,?,?,?)");
-
-                        queryInsert.bindValue(0,ent.getName());
-                        queryInsert.bindValue(1,ent.getStreet());
-                        queryInsert.bindValue(2,ent.getStreetNumber());
-                        queryInsert.bindValue(3,ent.getCity());
-                        queryInsert.bindValue(4,ent.getPostalCode());
-                        queryInsert.bindValue(5,ent.getPhoneNumber());
-                        queryInsert.bindValue(6,user_id.toInt());
-
-                        qDebug() << queryInsert.exec();
-                        QSqlError error= queryInsert.lastError();
-                        qDebug() <<error.databaseText().toUtf8().constData();
-        }
-
-    }
-    else{
-        qDebug() << "User is not logged in";
-    }
-
-
-
-}
-
-void MainWindow::saveAppointmentInDb(AppointmentEntity ent, QString user_id)
-{
-
-    if(user_id.toInt() > -1){
-        if(db.open())
-        {
-
-            QSqlQuery queryInsert(db);
-            queryInsert.prepare("insert into appointments(appdate,apptime,title,notes,did,uid) values(?,?,?,?,?,?)");
-            queryInsert.bindValue(0,QDate::fromString(ent.getDate()));
-            queryInsert.bindValue(1,QTime::fromString(ent.getTime()));
-            queryInsert.bindValue(2,ent.getTitle());
-            queryInsert.bindValue(3,ent.getTitle());
-            queryInsert.bindValue(4,ent.getDoctorID());
-            queryInsert.bindValue(5,user_id);
-
-            qDebug()<<queryInsert.exec();
-            QSqlError error= queryInsert.lastError();
-            qDebug() <<error.databaseText().toUtf8().constData();
-        }
-
-    }
-    else{
-        qDebug() << "User is not logged in";
-    }
-}
 
 int MainWindow::findUserInDatabase(User user)
 {

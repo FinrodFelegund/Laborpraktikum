@@ -36,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_openingModel, &OpeningModel::messageCreated, client, &Client::sendMessage);
     connect(client, &Client::pendingLoginRequest, m_openingModel, &OpeningModel::receiveMessage);
     connect(m_openingModel, &OpeningModel::sendLoginProgress, this, &MainWindow::showProgress);
+    connect(m_openingModel, &OpeningModel::currentUser, client, &Client::setCurrentUser);
 
     ui->appointmentButton->hide();
     ui->reportButton->hide();

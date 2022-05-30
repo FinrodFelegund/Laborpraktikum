@@ -63,6 +63,7 @@ void OpeningModel::receiveMessage(QString buffer, int messageType)
             if(m_user->getUID().toInt() != 0)
             {
                 emit sendLoginProgress(true);
+                emit currentUser(m_user);
                 //emit leaveLoginAndSetUserID(m_user->getUID());
             }
             else if (m_user->getUID().toInt() == 0)

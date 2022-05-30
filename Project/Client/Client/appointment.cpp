@@ -32,6 +32,9 @@ void Appointment::createAppointmentMessage()
     QString title = ui->title->text();
     QString notes = ui->notes->toPlainText();
 
+    AppointmentEntity appointment;
+    appointment.setProperties(date,time,QString::number(doctor),title,notes);
+
     //create the header and message for the server
     QByteArray header;
     int messageType = MessageHeader::saveMessage;
@@ -40,13 +43,7 @@ void Appointment::createAppointmentMessage()
     header.prepend(QString::number(messageEntity).toUtf8() + ",");
     header.prepend(QString::number(messageType).toUtf8() + ",");
 
-
-
-
-    //QString message = date + ";" + doctor + ";" + text + ";" + this->userID + ";";
-    QString message = date + "," + time + "," + title + ","+ notes + ","+ QString::number(doctor) + "," + ";";
-
-    emit messageCreated(header, message);
+    emit messageCreated(header, appointment.getPropertiesAsString());
 
 
 }

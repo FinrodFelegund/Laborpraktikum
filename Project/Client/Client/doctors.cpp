@@ -35,6 +35,9 @@ void Doctors::createDoctorMessage()
     QString plz = ui->plz->text();
     QString phonenumber = ui->phone->text();
 
+    DoctorEntity doctor;
+    doctor.setProperties(name,street,housenumber,city,plz,phonenumber);
+
     //create the header and message for the server
     QByteArray header;
     int messageType = MessageHeader::saveMessage;
@@ -43,13 +46,7 @@ void Doctors::createDoctorMessage()
     header.prepend(QString::number(messageEntity).toUtf8() + ",");
     header.prepend(QString::number(messageType).toUtf8() + ",");
 
-    QString message = name + "," + street + "," + housenumber
-            + "," + city + "," + plz + "," + phonenumber + "," + ";";
-
-    QByteArray messageToSend = message.toUtf8();
-    messageToSend.prepend(header);
-
-    emit messageCreated(header, message);
+    emit messageCreated(header, doctor.getPropertiesAsString());
 }
 
 void Doctors::on_saveButton_clicked()

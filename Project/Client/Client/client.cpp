@@ -1,7 +1,8 @@
 #include "client.h"
 #include "../../header.h"
+#include <QMessageBox>
 
-Client::Client(): my_user_id(-1)
+Client::Client()
 {
 
     m_clientSocket = new QTcpSocket();
@@ -20,7 +21,8 @@ Client::Client(): my_user_id(-1)
 
     krypter = new Krypter;
 
-    my_user_id = 1; //has to be set after login
+    m_user=new User();
+    m_user->setProperties("0","NoEmail","NoPasswort");
 }
 
 Client::~Client()
@@ -91,13 +93,50 @@ void Client::readSocket()
 
     QString header = buffer.mid(0, 128);
     processNewMessage(header, buffer);
+}
+
+void Client::setCurrentUser(User *currUser)
+{
+    m_user= currUser;
+}
+
+void Client::interpretMessage(QString header, QByteArray message, long long socketDescriptor)
+{
+    qDebug()<<"interpret Message";
+    QStringList headerSplit = header.split(",");
+
+     int entityType = headerSplit[0].toInt();
+     int cipherLength = headerSplit[1].toInt();
+
+     message = message.mid(128);
+
+      switch (entityType) {
+      case MessageHeader::DoctorSaved:
+        QMessageBox::information(nullptr, "Arzt wurde gespeichert!","Der Arzt wurde erfolgreich gespeichert.");
+          break;
+      case MessageHeader::DoctorNotSaved:
+          QMessageBox::warning(nullptr,"Arzt wurde nicht gespeichert!","Der Arzt konnte nicht in der Datenbank gespeichert werden.");
+          break;
+      case MessageHeader::AppointmentSaved:
+          QMessageBox::information(nullptr, "Termin wurde gespeichert!","Der Termin wurde erfolgreich gespeichert.");
+          break;
+      case MessageHeader::AppointmentNotSaved:
+          QMessageBox::warning(nullptr,"Termin wurde nicht gespeichert!","Der Termin konnte nicht in der Datenbank gespeichert werden.");
+          break;
+      case MessageHeader::DoctorEnt:
+          break;
+      case MessageHeader::AppointmentEnt:
+          break;
+      default:
+          break;
+      }
 
 }
 
 void Client::sendMessage(QByteArray header, QString message)
 {
 
-    message += QString::number(my_user_id)+";"; //Add User ID here for safty so all messages have the same ID
+    message += m_user->getUID()+","; //Add User ID here for safty so all messages have the same ID
 
     int length = 0;
     QByteArray messageToSend = krypter->encrypt(message, &length);
@@ -128,22 +167,34 @@ void Client::processNewMessage(QString header, QByteArray buffer)
     //qDebug() << header;
     QStringList headerSplit = header.split(",");
 
-    int messageType = headerSplit[0].toInt();
-    int entityType = headerSplit[1].toInt();
-    int cipherLength = headerSplit[2].toInt();
+    //int messageType = headerSplit[0].toInt();
+    int entityType = headerSplit[0].toInt();
+    int cipherLength = headerSplit[1].toInt();
 
     //qDebug() << messageType << " " << entityType << " " << cipherLength;
 
     buffer = buffer.mid(128);
 
-    switch(messageType)
+    switch(entityType)
     {
         case MessageHeader::loginRequest:
-        {
+    {
             QString buf = krypter->decrypt(buffer, cipherLength);
-            emit pendingLoginRequest(buf, messageType);
-
-        }
+            emit pendingLoginRequest(buf, entityType);
+    }
+        break;
+    case MessageHeader::DoctorSaved:
+      QMessageBox::information(nullptr, "Arzt wurde gespeichert!","Der Arzt wurde erfolgreich gespeichert.");
+        break;
+    case MessageHeader::DoctorNotSaved:
+        QMessageBox::warning(nullptr,"Arzt wurde nicht gespeichert!","Der Arzt konnte nicht in der Datenbank gespeichert werden.");
+        break;
+    case MessageHeader::AppointmentSaved:
+        QMessageBox::information(nullptr, "Termin wurde gespeichert!","Der Termin wurde erfolgreich gespeichert.");
+        break;
+    case MessageHeader::AppointmentNotSaved:
+        QMessageBox::warning(nullptr,"Termin wurde nicht gespeichert!","Der Termin konnte nicht in der Datenbank gespeichert werden.");
+        break;
 
 
     }

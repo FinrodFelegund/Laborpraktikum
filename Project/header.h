@@ -11,30 +11,25 @@
 
 // a header consists of 2 of these types
 enum MessageHeader
-{
-
-    //message Types
+{    //message Types
     saveMessage = 0,
-
     returnMessage,
-
     returnMessageArray,
-
     loginRequest,
-
     signUpRequest,
 
-
     //entity Types e.g. Appointment etc;  to be completed
-
     AppointmentEnt,
-
     DoctorEnt,
+    UserEnt,
 
-    UserEnt
+    DoctorSaved,
+    AppointmentSaved,
+    DoctorNotSaved,
+    AppointmentNotSaved,
+    DoNothing
 
 };
-
 
 
 class Entity

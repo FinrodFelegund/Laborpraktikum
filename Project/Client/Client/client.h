@@ -22,9 +22,11 @@ private slots:
 
     void discardSocket();
     void displayError(QAbstractSocket::SocketError socketError);
+
 public slots:
     void sendMessage(QByteArray header, QString message);
     void readSocket();
+    void setCurrentUser(User * currUser);
 
 signals:
     void pendingLoginRequest(QString buf, int messageType);
@@ -32,11 +34,13 @@ signals:
 
 
 private:
+    void interpretMessage(QString header, QByteArray message, long long socketDescriptor);
+
     QTcpSocket *m_clientSocket;
     std::string IPAdress;
     int portNumber;
     Krypter *krypter;
-    int my_user_id;
+    User* m_user;
 };
 
 #endif // CLIENT_H

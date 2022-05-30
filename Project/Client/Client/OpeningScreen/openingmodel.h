@@ -21,6 +21,7 @@ public:
 signals:
     void messageCreated(QByteArray header, QString message);
     void sendLoginProgress(bool progress);
+    void currentUser(User* currUser);
 
 public slots:
     void receiveMessage(QString buffer, int messageType);

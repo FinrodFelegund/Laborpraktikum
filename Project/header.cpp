@@ -88,11 +88,11 @@ int Krypter::encrypt(unsigned char *text, int text_len, unsigned char *cipher)
 
     cipher_len += len;
 
-    /*printf("Encryption in Krypter Class\n");
+    printf("Encryption in Krypter Class\n");
     for(int i = 0; i < cipher_len; i++){
         printf("%d ", cipher[i]);
     }
-    printf("\n");*/
+    printf("\n");
 
     return cipher_len;
 
@@ -104,11 +104,11 @@ void Krypter::decrypt(unsigned char *cipher, int cipher_len, unsigned char *text
     int len = 0;
     int text_len = 0;
 
-    /*printf("Decryption in Krypter Class\n");
+    printf("Decryption in Krypter Class\n");
     for(int i = 0; i < cipher_len; i++){
         printf("%d ", cipher[i]);
     }
-    printf("\n");*/
+    printf("\n");
 
 
     if(!ctx)
@@ -153,7 +153,7 @@ void AppointmentEntity::setProperties(QString date, QString time, QString doctor
     this->date = date;
     this->time = time;
     this->doctorID = doctorID;
-    this->text = title;
+    this->title = title;
     this->text = text;
 }
 
