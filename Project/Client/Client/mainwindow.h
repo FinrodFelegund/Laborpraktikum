@@ -24,10 +24,10 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void showProgress(bool progress);
+    void showProgress(QString progress);
+    void showMainWindows();
 
 private slots:
-
 
     void on_reportButton_clicked();
 

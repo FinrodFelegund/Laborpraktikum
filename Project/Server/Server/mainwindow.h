@@ -15,6 +15,8 @@
 #include <QtSql>
 #include <memory>
 
+#include "EmailServer/emailclient.h"
+
 class Krypter;
 class AppointmentEntity;
 class DoctorEntity;
@@ -53,23 +55,55 @@ private:
     //Database functions that save an Entity
     bool saveDoctorInDb(DoctorEntity ent, QString user_id);
     bool saveAppointmentInDb(AppointmentEntity ent, QString user_id);
-    int findUserInDatabase(User user);
+    bool saveUserInDb(User user);
 
-    //Database functions that return Entities
+
+    int findUserInDatabase(User user);
+    QString getPasswordFromUser(User user);
+    //Server functions that send Entities
     std::vector<std::shared_ptr<Entity>> selectAppointmentsFromDatabase(QString userID);
 
+
     void returnMessage(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);
+
+
+    void setLoginStateInDB(QString userID, bool loginState);
+
+    //these functions figure out what the user expects from the server
+
     void returnEntityFromDatabaseWithGivenUserID(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);
     void loginUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);
+    void signUpUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);
+    void sendEmailToUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);
 
-    QTcpSocket * getSocket(long long socketDescriptor);
+    QTcpSocket *getSocket(long long socketDescriptor);
+    void mapUserToSocket(long long socketDescriptor, int userID);
+
 
     Ui::MainWindow *ui;
     QTcpServer *m_server;
-    QSet<QTcpSocket*> m_connection_set;
+
+    struct connections{
+        connections( QTcpSocket *connection, int userID = -1)
+        {
+            this->m_connection = connection;
+            this->userID = userID;
+
+        }
+
+        //deleting the TcpSockets is job of mainwindow, when connections destructor is invoked, sockets are already deleted
+        ~connections(){}
+        QTcpSocket* m_connection;
+        int userID;
+
+    };
+
+    std::vector<connections> m_connectionSet;
+
     int port_number = 1234;
     QSqlDatabase db;
     Krypter *krypter;
+    EMailClient *eMailClient;
 
 
 };

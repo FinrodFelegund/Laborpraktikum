@@ -29,12 +29,12 @@ public slots:
     void setCurrentUser(User * currUser);
 
 signals:
-    void pendingLoginRequest(QString buf, int messageType);
+    void pendingOpeningRequest(QString buf, int messageType);
 
 
 
 private:
-    void interpretMessage(QString header, QByteArray message, long long socketDescriptor);
+
 
     QTcpSocket *m_clientSocket;
     std::string IPAdress;

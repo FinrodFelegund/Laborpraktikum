@@ -29,7 +29,68 @@ void OpeningModel::connectGui()
 {
     auto login = screen->getLogin();
     connect(login, &Login::loginUser, this, &OpeningModel::sendLoginRequest);
+    connect(login, &Login::passwordRequest, this, &OpeningModel::sendPasswordRequest);
+    auto signUp = screen->getSignUp();
+    connect(signUp, &Signup::signUpUser, this, &OpeningModel::sendSignUpRequest);
 
+}
+
+
+void OpeningModel::receiveMessage(QString buffer, int messageType)
+{
+
+    QStringList list = buffer.split(",");
+    m_user->setPropertiesAsEntity(list);
+    m_user->print();
+    qDebug() << messageType;
+
+    switch(messageType)
+    {
+
+        case MessageHeader::loginRequest:
+        {
+            if(m_user->getUID().toInt() > 0)
+            {
+
+                emit sendLoginProgress("Login successful");
+                emit currentUser(m_user);
+                emit showMainWindows();
+                //emit leaveLoginAndSetUserID(m_user->getUID());
+            }
+            else if (m_user->getUID().toInt() <= 0)
+            {
+                emit sendLoginProgress("Login failed. User either logged in on other device or doesn't exist");
+            }
+            break;
+        }
+
+        case MessageHeader::signUpRequest:
+        {
+            if(m_user->getUID().toInt() > 0)
+            {
+                emit sendLoginProgress("Sign up successful!");
+            }
+            else
+            {
+                emit sendLoginProgress("Sign up not successful. User already exists");
+            }
+
+            break;
+        }
+
+        case MessageHeader::passwortRequest:
+        {
+            if(m_user->getUID().toInt() == 1)
+            {
+                emit sendLoginProgress("A message with your password was sent to your EMail Adresse.");
+            }
+            else
+            {
+                emit sendLoginProgress("EMail could not be sent. Either your EMail was wrong or it does not exist");
+            }
+            break;
+        }
+    }
 }
 
 void OpeningModel::sendLoginRequest()
@@ -43,39 +104,57 @@ void OpeningModel::sendLoginRequest()
     header.prepend(QString::number(entityType).toUtf8() + ",");
     header.prepend(QString::number(messageType).toUtf8() + ",");
 
-    QString buffer = m_user->getPropertiesAsString().toUtf8();
+    QString buffer = m_user->getPropertiesAsString();
 
     emit messageCreated(header, buffer);
 
 
 }
 
-void OpeningModel::receiveMessage(QString buffer, int messageType)
+void OpeningModel::signupGui2Model()
 {
-    QStringList list = buffer.split(",");
-    m_user->setPropertiesAsEntity(list);
+    auto signup = screen->getSignUp();
+    m_user->setProperties("", signup->getEmail(), signup->getPassword());
+}
 
-    switch(messageType)
+void OpeningModel::sendSignUpRequest()
+{
+    signupGui2Model();
+
+    QByteArray header;
+    int messageType = MessageHeader::signUpRequest;
+    int entityType = MessageHeader::UserEnt;
+    header.prepend(QString::number(entityType).toUtf8() + ",");
+    header.prepend(QString::number(messageType).toUtf8() + ",");
+
+    QString buffer = m_user->getPropertiesAsString();
+
+    emit messageCreated(header, buffer);
+}
+
+void OpeningModel::sendPasswordRequest()
+{
+
+    loginGui2Model();
+    auto login = screen->getLogin();
+    bool exec = login->createPasswordRequestDialog(m_user);
+
+    if(exec)
     {
-        case MessageHeader::loginRequest:
-        {
+        QByteArray header;
+        int messageType = MessageHeader::passwortRequest;
+        int entityType = MessageHeader::UserEnt;
+        header.prepend(QString::number(entityType).toUtf8() + ",");
+        header.prepend(QString::number(messageType).toUtf8() + ",");
 
-            if(m_user->getUID().toInt() != 0)
-            {
-                emit sendLoginProgress(true);
-                emit currentUser(m_user);
-                //emit leaveLoginAndSetUserID(m_user->getUID());
-            }
-            else if (m_user->getUID().toInt() == 0)
-            {
-                emit sendLoginProgress(false);
-            }
+        QString buffer = m_user->getPropertiesAsString();
 
-
-
-
-
-        }
+        emit messageCreated(header, buffer);
     }
+    else
+    {
+        emit sendLoginProgress("Please enter a valid EMail Adresse");
+    }
+
 }
 

@@ -3,7 +3,6 @@
 #include "../../header.h"
 
 
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -35,13 +34,15 @@ MainWindow::MainWindow(QWidget *parent)
         }
 
     krypter = new Krypter;
+    eMailClient = new EMailClient();
+
 }
 
 MainWindow::~MainWindow()
 {
-    for(QTcpSocket *s : m_connection_set){
-        s->close();
-        s->deleteLater();
+    for(connections s : m_connectionSet){
+        s.m_connection->close();
+        s.m_connection->deleteLater();
     }
 
     m_server->close();
@@ -49,6 +50,8 @@ MainWindow::~MainWindow()
 
     if(krypter)
         delete krypter;
+    if(eMailClient)
+        delete eMailClient;
 
     delete ui;
 
@@ -60,11 +63,12 @@ void MainWindow::newConnection(){
 }
 
 void MainWindow::appendToSocketList(QTcpSocket* socket){
-    m_connection_set.insert(socket);
+    connections con(socket);
+    m_connectionSet.push_back(con);
     connect(socket, &QTcpSocket::readyRead, this, &MainWindow::readSocket);
     connect(socket, &QTcpSocket::disconnected, this, &MainWindow::discardSocket);
     connect(socket, &QAbstractSocket::errorOccurred, this, &MainWindow::displayError);
-    QString str = QString("INFO :: Client with socketID:%1 has just entered the room").arg(socket->socketDescriptor());
+    QString str = QString("INFO :: Client with socketID:%1 has just entered the room.").arg(socket->socketDescriptor());
     qDebug() << str;
 }
 
@@ -104,12 +108,24 @@ void MainWindow::readSocket(){
 
 void MainWindow::discardSocket(){
     QTcpSocket *socket = reinterpret_cast<QTcpSocket*>(sender());
-    QSet<QTcpSocket*>::iterator it = m_connection_set.find(socket);
-    if(it != m_connection_set.end())
+    std::vector<connections>::iterator it = m_connectionSet.begin(); //= m_connectionSet.find(socket);
+    int index = 0;
+    while(it->m_connection != socket)
     {
-        QString message = QString("INFO :: A client has just left the room").arg(socket->socketDescriptor());
+        it++;
+        index++;
+    }
+
+    if(it != m_connectionSet.end())
+    {
+        QString message = QString("INFO :: A client has just left the room with SocketID: %1").arg(socket->socketDescriptor());
         qDebug() << message;
-        m_connection_set.remove(*it);
+        if(it->userID > 0) //Dani: sorgt dafür dass die DB auch nur geupdated wird, falls bereit ein Login durchgeführt wurde
+            setLoginStateInDB(QString::number(it->userID), false);
+
+        m_connectionSet.erase(m_connectionSet.begin() + index);
+        //this will reset the leaving users Login State
+
     }
 
     socket->deleteLater();
@@ -198,6 +214,29 @@ bool MainWindow::saveAppointmentInDb(AppointmentEntity ent, QString user_id)
     return false;
 }
 
+bool MainWindow::saveUserInDb(User user)
+{
+    bool executed = false;
+    int logedIn = 0;
+    if(db.open())
+    {
+        QSqlQuery queryInsert(db);
+        queryInsert.prepare("insert into Users(email, passwort, loginState) values(?, ?, ?)");
+        //queryInsert.bindValue(0, logedIn);
+        queryInsert.bindValue(0, user.getEmail());
+        queryInsert.bindValue(1, user.getPassword());
+        queryInsert.bindValue(2, logedIn);
+
+        executed = queryInsert.exec();
+        qDebug() << "In Save User In db: " << executed;
+        QSqlError error = queryInsert.lastError();
+        qDebug() << error;
+        return executed;
+    }
+
+    return executed;
+}
+
 void MainWindow::displayMessage(QString header, QByteArray buffer, long long socketDescriptor)
 {
 
@@ -244,10 +283,63 @@ void MainWindow::displayMessage(QString header, QByteArray buffer, long long soc
             break;
         }
 
+        case MessageHeader::signUpRequest:
+        {
+            qDebug() << "SignUp Request received";
+            signUpUserAndReturnStatus(entityType, cipherLength, buffer, socketDescriptor);
+            break;
+
+        }
+
+        case MessageHeader::passwortRequest:
+        {
+            qDebug() << "Password Request received";
+            sendEmailToUserAndReturnStatus(entityType, cipherLength, buffer, socketDescriptor);
+            break;
+        }
+
         default:
         break;
 
     }
+
+}
+
+void MainWindow::sendEmailToUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor)
+{
+    QTcpSocket *receiver = getSocket(socketDescriptor);
+    QString message = krypter->decrypt(buffer, cipherLength);
+    QStringList list = message.split(",");
+    User user;
+    user.setPropertiesAsEntity(list);
+    QString userCredential = getPasswordFromUser(user);
+    user.setPassword(userCredential);
+    int retVal = 0;
+
+    if(!userCredential.isEmpty())
+        retVal = eMailClient->sendEmail(user);
+
+    user.setUID(QString::number(retVal));
+
+
+    list.clear();
+    list.append(user.getUID());
+    list.append(user.getEmail());
+    list.append(user.getPassword());
+
+    QByteArray header;
+    header.append(QString::number(MessageHeader::passwortRequest).toUtf8() + ",");
+    header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
+    std::vector<std::shared_ptr<Entity>> ent(1);
+
+    ent[0] = std::make_shared<User>();
+    ent[0]->setPropertiesAsEntity(list);
+    //qDebug() << "made it till return login request ";
+    //ent[0]->print();
+
+    //header.append(QString::number(MessageHeader::loginRequest).toUtf8() + ",");
+    //header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
+    sendMessage(receiver, ent, header);
 
 }
 
@@ -259,24 +351,69 @@ void MainWindow::loginUserAndReturnStatus(int entityType, int cipherLength, QByt
     QStringList list = message.split(",");
     User user;
     user.setPropertiesAsEntity(list);
+
+
     //... find the user with given credentails
 
     int userID = findUserInDatabase(user);
+    //User ID = 0 means user not in database -1 already logged in on other device, everything else is userID
+    if(userID > 0)
+    {
+        setLoginStateInDB(QString::number(userID), true);
+        mapUserToSocket(socketDescriptor, userID);
+    }
 
-    //User ID = 0 means user not in database, everything else is userID
     list.clear();
     list.append(QString::number(userID));
     list.append(user.getEmail());
     list.append(user.getPassword());
+
     QByteArray header;
     header.append(QString::number(MessageHeader::loginRequest).toUtf8() + ",");
-    //header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
+    header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
     std::vector<std::shared_ptr<Entity>> ent(1);
+
+    ent[0] = std::make_shared<User>();
+    ent[0]->setPropertiesAsEntity(list);
+    //qDebug() << "made it till return login request ";
+    //ent[0]->print();
+
+    //header.append(QString::number(MessageHeader::loginRequest).toUtf8() + ",");
+    //header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
+    sendMessage(receiver, ent, header);
+}
+
+void MainWindow::signUpUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor)
+{
+    QTcpSocket *receiver = getSocket(socketDescriptor);
+    QString message = krypter->decrypt(buffer, cipherLength);
+    QStringList list = message.split(",");
+    User user;
+    user.setPropertiesAsEntity(list);
+
+    int userID = findUserInDatabase(user);
+    //userID = 0 user is not in database so signup
+
+    int retVal;
+    if(userID == 0)
+    {
+        retVal = createEntityAndSafeToDatabase(entityType, cipherLength, buffer); //ja es wird nochmal entschlüsselt I know
+        list[0] = QString::number(1); // Das ist nicht die UserId welche die DB vergibt sondern nur für OpeningModel gedacht um herauszufinden ob die Operation erfolgreich war
+
+    }
+    else
+    {
+        list[0] = QString::number(0); //error
+    }
+
+    QByteArray header;
+    header.append(QString::number(MessageHeader::signUpRequest).toUtf8() + ",");
+    header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
+    std::vector<std::shared_ptr<Entity>> ent(1);
+
     ent[0] = std::make_shared<User>();
     ent[0]->setPropertiesAsEntity(list);
 
-    qDebug() << "made it till return login request ";
-    ent[0]->print();
     sendMessage(receiver, ent, header);
 }
 
@@ -321,6 +458,15 @@ int MainWindow::createEntityAndSafeToDatabase(int entityType, int cipherLength, 
                 result = MessageHeader::DoctorNotSaved;
             }
             break;
+        }
+
+        case MessageHeader::UserEnt:
+        {
+            User user;
+            user.setPropertiesAsEntity(list);
+            saveUserInDb(user);
+            return MessageHeader::signUpRequest;
+
         }
 
         default:
@@ -382,6 +528,7 @@ void MainWindow::returnMessage(int entityType, int cipherLength, QByteArray buff
     case MessageHeader::DoctorNotSaved:
     case MessageHeader::AppointmentSaved:
     case MessageHeader::AppointmentNotSaved:
+        header.append(QString::number(MessageHeader::DoNothing).toUtf8() + ",");
         header.append(QString::number(entityType).toUtf8() + ",");
         sendMessage(receiver,emptyVec,header);
         break;
@@ -449,13 +596,35 @@ std::vector<std::shared_ptr<Entity>> MainWindow::selectAppointmentsFromDatabase(
     return ent;
 }
 
+QString MainWindow::getPasswordFromUser(User user)
+{
+    QString password = "";
+    if(db.open())
+    {
+        QSqlQuery queryFind(db);
+        queryFind.prepare("select passwort from Users where email = '"+user.getEmail()+"' ");
+        qDebug() << "Inf function getPasswordFromUser: " << queryFind.exec();
+
+        QSqlError error = queryFind.lastError();
+        qDebug() << error;
+
+        queryFind.next();
+
+        if(queryFind.isValid())
+        {
+            password = queryFind.value(0).toString();
+        }
+    }
+    return password;
+}
+
 
 int MainWindow::findUserInDatabase(User user)
 {
     if(db.open())
     {
         QSqlQuery queryFind(db);
-        queryFind.prepare("select * from Users where email = '" +user.getEmail()+ "' ");
+        queryFind.prepare("select uid, loginState from Users where email = '" +user.getEmail()+ "' "); // +password
 
         qDebug() << queryFind.exec();
         QSqlError error = queryFind.lastError();
@@ -463,25 +632,48 @@ int MainWindow::findUserInDatabase(User user)
             qDebug() << "In Find User Query: " << error.databaseText().toUtf8().constData();
 
         int userID = 0;
+        int loginState = 0;
         queryFind.next();
+
+        if(queryFind.isValid())
         {
             userID = queryFind.value(0).toInt();
+            loginState = queryFind.value(1).toInt();
+            return (loginState == 1 ? -1 : userID);
+
+        } else
+        {
+            return 0;
         }
 
-        return userID;
+
     }
 
     return 0;
 }
 
+void MainWindow::setLoginStateInDB(QString userID, bool status)
+{
+
+    if(db.open())
+    {
+        QSqlQuery queryAlter(db);
+        queryAlter.prepare("update Users set loginState = '"+QString::number(status)+"' where uid = '"+userID+"'");
+        qDebug() << "In Function SetLoginState in DB: " << queryAlter.exec();
+        QSqlError error = queryAlter.lastError();
+        qDebug() << error;
+    }        
+}
+
+
 QTcpSocket* MainWindow::getSocket(long long socketDescriptor)
 {
     QTcpSocket *receiver;
-    for(QTcpSocket *w : m_connection_set)
+    for(connections w : m_connectionSet)
     {
-        if(w->socketDescriptor() == socketDescriptor)
+        if(w.m_connection->socketDescriptor() == socketDescriptor)
         {
-            receiver = w;
+            receiver = w.m_connection;
             return receiver;
         }
 
@@ -489,6 +681,17 @@ QTcpSocket* MainWindow::getSocket(long long socketDescriptor)
 
     return nullptr;
 }
+
+void MainWindow::mapUserToSocket(long long socketDescriptor, int userID)
+{
+    for(unsigned long i = 0; i < m_connectionSet.size(); i++)
+    {
+        if(m_connectionSet[i].m_connection->socketDescriptor() == socketDescriptor)
+            m_connectionSet[i].userID = userID;
+    }
+}
+
+
 
 
 

@@ -100,43 +100,11 @@ void Client::setCurrentUser(User *currUser)
     m_user= currUser;
 }
 
-void Client::interpretMessage(QString header, QByteArray message, long long socketDescriptor)
-{
-    qDebug()<<"interpret Message";
-    QStringList headerSplit = header.split(",");
-
-     int entityType = headerSplit[0].toInt();
-     int cipherLength = headerSplit[1].toInt();
-
-     message = message.mid(128);
-
-      switch (entityType) {
-      case MessageHeader::DoctorSaved:
-        QMessageBox::information(nullptr, "Arzt wurde gespeichert!","Der Arzt wurde erfolgreich gespeichert.");
-          break;
-      case MessageHeader::DoctorNotSaved:
-          QMessageBox::warning(nullptr,"Arzt wurde nicht gespeichert!","Der Arzt konnte nicht in der Datenbank gespeichert werden.");
-          break;
-      case MessageHeader::AppointmentSaved:
-          QMessageBox::information(nullptr, "Termin wurde gespeichert!","Der Termin wurde erfolgreich gespeichert.");
-          break;
-      case MessageHeader::AppointmentNotSaved:
-          QMessageBox::warning(nullptr,"Termin wurde nicht gespeichert!","Der Termin konnte nicht in der Datenbank gespeichert werden.");
-          break;
-      case MessageHeader::DoctorEnt:
-          break;
-      case MessageHeader::AppointmentEnt:
-          break;
-      default:
-          break;
-      }
-
-}
 
 void Client::sendMessage(QByteArray header, QString message)
 {
 
-    message += m_user->getUID()+","; //Add User ID here for safty so all messages have the same ID
+    //message += m_user->getUID()+","; //Add User ID here for safty so all messages have the same ID
 
     int length = 0;
     QByteArray messageToSend = krypter->encrypt(message, &length);
@@ -163,13 +131,13 @@ void Client::sendMessage(QByteArray header, QString message)
 
 void Client::processNewMessage(QString header, QByteArray buffer)
 {
-    //qDebug() << "reached processNewMessage";
+    qDebug() << "reached processNewMessage";
     //qDebug() << header;
     QStringList headerSplit = header.split(",");
 
-    //int messageType = headerSplit[0].toInt();
-    int entityType = headerSplit[0].toInt();
-    int cipherLength = headerSplit[1].toInt();
+    int messageType = headerSplit[0].toInt();
+    int entityType = headerSplit[1].toInt();
+    int cipherLength = headerSplit[2].toInt();
 
     //qDebug() << messageType << " " << entityType << " " << cipherLength;
 
@@ -177,12 +145,15 @@ void Client::processNewMessage(QString header, QByteArray buffer)
 
     switch(entityType)
     {
-        case MessageHeader::loginRequest:
+    case MessageHeader::UserEnt:
     {
             QString buf = krypter->decrypt(buffer, cipherLength);
-            emit pendingLoginRequest(buf, entityType);
+            qDebug() << buf;
+            emit pendingOpeningRequest(buf, messageType);
+            break;
+
     }
-        break;
+
     case MessageHeader::DoctorSaved:
       QMessageBox::information(nullptr, "Arzt wurde gespeichert!","Der Arzt wurde erfolgreich gespeichert.");
         break;

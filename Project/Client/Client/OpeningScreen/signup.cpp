@@ -27,3 +27,29 @@ void Signup::clearGui()
 
 
 
+
+void Signup::on_pushButton_signUp_clicked()
+{
+    if((ui->lineEdit_email->text().isEmpty() && ui->lineEdit_password->text().isEmpty()))
+        return;
+
+    eMail.clear();
+    eMail = ui->lineEdit_email->text();
+    password.clear();
+    password = ui->lineEdit_password->text();
+    emit signUpUser();
+
+}
+
+QString Signup::getEmail() const
+{
+    return eMail;
+}
+
+QString Signup::getPassword() const
+{
+    return password;
+}
+
+
+

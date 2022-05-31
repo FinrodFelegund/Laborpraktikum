@@ -76,6 +76,7 @@ int Krypter::encrypt(unsigned char *text, int text_len, unsigned char *cipher)
         return -1;
     }
 
+
     if(!EVP_EncryptUpdate(ctx, cipher, &len, text, text_len))
     {
         return-1;
@@ -87,12 +88,12 @@ int Krypter::encrypt(unsigned char *text, int text_len, unsigned char *cipher)
         return-1;
 
     cipher_len += len;
-
+/*
     printf("Encryption in Krypter Class\n");
     for(int i = 0; i < cipher_len; i++){
         printf("%d ", cipher[i]);
     }
-    printf("\n");
+    printf("\n");*/
 
     return cipher_len;
 
@@ -103,12 +104,12 @@ void Krypter::decrypt(unsigned char *cipher, int cipher_len, unsigned char *text
 
     int len = 0;
     int text_len = 0;
-
+/*
     printf("Decryption in Krypter Class\n");
     for(int i = 0; i < cipher_len; i++){
         printf("%d ", cipher[i]);
     }
-    printf("\n");
+    printf("\n");*/
 
 
     if(!ctx)
@@ -317,4 +318,14 @@ QString User::getPropertiesAsString()
     QString str;
     str = uID + "," + eMail + "," + password + ",";
     return str;
+}
+
+void User::setUID(QString UID)
+{
+    this->uID = UID;
+}
+
+void User::setPassword(QString password)
+{
+    this->password = password;
 }

@@ -16,15 +16,19 @@ public:
     void signupGui2Model();
     void setGui(OpeningScreen *screen);
     void connectGui();
-    void sendLoginRequest();
+
 
 signals:
     void messageCreated(QByteArray header, QString message);
-    void sendLoginProgress(bool progress);
+    void sendLoginProgress(QString progress);
     void currentUser(User* currUser);
+    void showMainWindows();
 
 public slots:
     void receiveMessage(QString buffer, int messageType);
+    void sendLoginRequest();
+    void sendSignUpRequest();
+    void sendPasswordRequest();
 
 
 private:

@@ -4,7 +4,8 @@ use demoapp;
 create table Users(
 uid integer primary key auto_increment,
 email varchar(50) unique not null,
-passwort char(32) not null
+passwort char(32) not null,
+loginState integer not null
 );
 
 
@@ -29,13 +30,13 @@ notes varchar(200),
 aid integer auto_increment primary key,
 uid integer not null,
 did integer,
-Foreign key (uid) references Users(uid) on delete cascade, 
+Foreign key (uid) references Users(uid) on delete cascade,
 foreign key (did) references Doctors(did)
 );
 
 create table Examinations(
 result varchar(500),
-picture varchar(100), 
+picture varchar(100),
 aid integer not null unique,
 Foreign key (aid) references Appointments(aid) on delete cascade
 );

@@ -9,7 +9,7 @@
 
 
 
-// a header consists of 2 of these types
+// a header consists of 2 of these types + cipher length
 enum MessageHeader
 {    //message Types
     saveMessage = 0,
@@ -17,6 +17,7 @@ enum MessageHeader
     returnMessageArray,
     loginRequest,
     signUpRequest,
+    passwortRequest,
 
     //entity Types e.g. Appointment etc;  to be completed
     AppointmentEnt,
@@ -28,6 +29,8 @@ enum MessageHeader
     DoctorNotSaved,
     AppointmentNotSaved,
     DoNothing
+
+
 
 };
 
@@ -41,6 +44,7 @@ class Entity
     virtual QString getPropertiesAsString() = 0;
     virtual void setPropertiesAsEntity(QStringList list) = 0;
     virtual void print() = 0;
+
 };
 
 class User : public Entity
@@ -51,15 +55,18 @@ public:
     void setProperties(QString uID, QString eMail, QString password);
     void setPropertiesAsEntity(QStringList list);
     void print();
+    void setUID(QString UID);
+    void setPassword(QString password);
+
     QString getPropertiesAsString();
     QString getUID();
     QString getEmail();
     QString getPassword();
 
 private:
-    QString uID;
-    QString password;
-    QString eMail;
+    QString uID = "";
+    QString password = "";
+    QString eMail = "";
 };
 
 class AppointmentEntity : public Entity
@@ -139,5 +146,7 @@ class Krypter
 
 
 };
+
+/*insert into users (email, Passwort) values("emaileingabe", md5("passworteingabe");*/
 
 

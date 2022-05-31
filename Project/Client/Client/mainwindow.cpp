@@ -34,9 +34,10 @@ MainWindow::MainWindow(QWidget *parent)
     //connect(m_reportScreen, &ReportScreen::messageCreated, client, &Client::sendMessage);
     connect(m_doctors, &Doctors::messageCreated, client, &Client::sendMessage);
     connect(m_openingModel, &OpeningModel::messageCreated, client, &Client::sendMessage);
-    connect(client, &Client::pendingLoginRequest, m_openingModel, &OpeningModel::receiveMessage);
+    connect(client, &Client::pendingOpeningRequest, m_openingModel, &OpeningModel::receiveMessage);
     connect(m_openingModel, &OpeningModel::sendLoginProgress, this, &MainWindow::showProgress);
     connect(m_openingModel, &OpeningModel::currentUser, client, &Client::setCurrentUser);
+    connect(m_openingModel, &OpeningModel::showMainWindows, this, &MainWindow::showMainWindows);
 
     ui->appointmentButton->hide();
     ui->reportButton->hide();
@@ -67,20 +68,13 @@ void MainWindow::on_docButton_clicked()
     ui->stackedWidget->setCurrentWidget(m_doctors);
 }
 
-void MainWindow::showProgress(bool progress)
+void MainWindow::showProgress(QString progress)
 {
-    if(progress)
-    {
-        ui->statusBar->showMessage("Login successful!");
-        ui->appointmentButton->show();
-        ui->reportButton->show();
-        ui->docButton->show();
-        on_appointmentButton_clicked();
-    }
-    else
-    {
-        ui->statusBar->showMessage("Login failed. User does not exist!");
-    }
+    ui->statusBar->showMessage(progress);
+}
 
+void MainWindow::showMainWindows()
+{
+    on_appointmentButton_clicked();
 }
 

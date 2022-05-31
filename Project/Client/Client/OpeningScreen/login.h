@@ -2,6 +2,9 @@
 #define LOGIN_H
 
 #include <QWidget>
+#include <QInputDialog>
+
+class User;
 
 namespace Ui {
 class Login;
@@ -16,17 +19,21 @@ public:
     ~Login();
     QString getEmail() const;
     QString getPassword() const;
+    bool createPasswordRequestDialog(User *user);
 
 
 signals:
     void showSignUp();
     void loginUser();
+    void passwordRequest();
 
 private slots:
 
     void on_pushButtonShowSignUp_clicked();
 
     void on_pushButton_Login_clicked();
+
+    void on_pushButton_ForgotPassword_clicked();
 
 private:
     Ui::Login *ui;
