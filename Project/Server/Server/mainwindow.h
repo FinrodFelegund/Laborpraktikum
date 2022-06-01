@@ -12,7 +12,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <iostream>
-#include <QtSql>
+#include "database.h"
 #include <memory>
 
 #include "EmailServer/emailclient.h"
@@ -52,6 +52,7 @@ private slots:
 private:
 
     int createEntityAndSafeToDatabase(int entityType, int cipherLength, QByteArray buffer);
+
     //Database functions that save an Entity
     bool saveDoctorInDb(DoctorEntity ent, QString user_id);
     bool saveAppointmentInDb(AppointmentEntity ent, QString user_id);
@@ -60,6 +61,8 @@ private:
 
     int findUserInDatabase(User user);
     QString getPasswordFromUser(User user);
+    void setLoginStateInDB(QString userID, bool loginState);
+
     //Server functions that send Entities
     std::vector<std::shared_ptr<Entity>> selectAppointmentsFromDatabase(QString userID);
 
@@ -67,7 +70,7 @@ private:
     void returnMessage(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);
 
 
-    void setLoginStateInDB(QString userID, bool loginState);
+
 
     //these functions figure out what the user expects from the server
 
@@ -101,7 +104,7 @@ private:
     std::vector<connections> m_connectionSet;
 
     int port_number = 1234;
-    QSqlDatabase db;
+    Database db;
     Krypter *krypter;
     EMailClient *eMailClient;
 
