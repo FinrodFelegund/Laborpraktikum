@@ -3,8 +3,6 @@
 
 #include <QWidget>
 #include <iostream>
-#include "../../header.h"
-
 
 namespace Ui {
 class Appointment;
@@ -15,7 +13,7 @@ class Appointment : public QWidget
     Q_OBJECT
 
 public:
-    explicit Appointment(QWidget *parent = nullptr, QString userID = "1234");
+    explicit Appointment(QWidget *parent = nullptr);
     ~Appointment();
     void createAppointmentMessage();
     void resetPage();
@@ -28,9 +26,6 @@ private slots:
 
 private:
     Ui::Appointment *ui;
-    QString userID = "1234";
-
-
 };
 
 #endif // APPOINTMENT_H

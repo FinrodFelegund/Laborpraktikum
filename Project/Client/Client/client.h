@@ -30,7 +30,7 @@ public slots:
 
 signals:
     void pendingOpeningRequest(QString buf, int messageType);
-
+    void returnAppointments(QString buf);
 
 
 private:

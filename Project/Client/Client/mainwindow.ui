@@ -27,9 +27,16 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
+       <widget class="QPushButton" name="appTimelineButton">
+        <property name="text">
+         <string>Alle Termine</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="appointmentButton">
         <property name="text">
-         <string>Appointment</string>
+         <string>Termin erstellen</string>
         </property>
        </widget>
       </item>

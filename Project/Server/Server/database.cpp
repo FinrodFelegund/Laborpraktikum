@@ -83,7 +83,6 @@ bool Database::saveUserInDb(User user)
     {
         QSqlQuery queryInsert(db);
         queryInsert.prepare("insert into Users(email, passwort, loginState) values(?, ?, ?)");
-        //queryInsert.bindValue(0, logedIn);
         queryInsert.bindValue(0, user.getEmail());
         queryInsert.bindValue(1, user.getPassword());
         queryInsert.bindValue(2, logedIn);
@@ -98,7 +97,7 @@ bool Database::saveUserInDb(User user)
     return executed;
 }
 
-int Database::findUserInDatabase(User user)
+int Database::findUserInDb(User user)
 {
     if(db.open())
     {
@@ -153,14 +152,56 @@ QString Database::getPasswordFromUser(User user)
     return password;
 }
 
-void Database::setLoginStateInDB(QString userID, bool loginState)
+void Database::setLoginStateInDb(QString user_id, bool loginState)
 {
     if(db.open())
     {
         QSqlQuery queryAlter(db);
-        queryAlter.prepare("update Users set loginState = '"+QString::number(loginState)+"' where uid = '"+userID+"'");
+        queryAlter.prepare("update Users set loginState = '"+QString::number(loginState)+"' where uid = '"+user_id+"'");
         qDebug() << "In Function SetLoginState in DB: " << queryAlter.exec();
         QSqlError error = queryAlter.lastError();
         qDebug() << error;
     }
+}
+
+std::vector<std::shared_ptr<Entity> > Database::selectAppointmentsFromDatabase(QString user_id)
+{
+    qDebug()<<"Select all Appointments for User:"+user_id;
+    bool executed=false;
+    std::vector<std::shared_ptr<Entity>> appEntVector;
+
+    if(user_id.toInt() > -1){
+        if(db.open()){
+            QSqlQuery querySelect(db);
+            querySelect.prepare("select appdate,apptime,title,notes,did from appointments where uid= ?");
+            querySelect.bindValue(0,user_id.toInt());
+            executed = querySelect.exec();
+            qDebug()<< executed;
+            QSqlError error= querySelect.lastError();
+            std::cout<<error.databaseText().toUtf8().constData();
+
+            QDate date;
+            QTime time;
+            QString doctorID;
+            QString title;
+            QString text;
+
+            if(executed){
+                while (querySelect.next()) {
+                        date = querySelect.value(0).toDate();
+                        time = querySelect.value(1).toTime();
+                        title = querySelect.value(2).toString();
+                        text = querySelect.value(3).toString();
+                        doctorID = querySelect.value(4).toString();
+
+                        std::shared_ptr<AppointmentEntity> appEnt=std::make_shared<AppointmentEntity>();
+                        appEnt->setProperties(date.toString(),time.toString(),doctorID,title,text);
+                        appEntVector.push_back(appEnt);
+                        qDebug()<<"Neuer Termin: " + appEnt->getPropertiesAsString();
+                    }
+            }
+
+        }
+    }
+    return appEntVector;
 }

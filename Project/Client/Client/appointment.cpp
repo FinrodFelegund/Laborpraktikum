@@ -1,17 +1,13 @@
 #include "appointment.h"
 #include "ui_appointment.h"
-//#include "../../header.h"
+#include "../../header.h"
 
 
-Appointment::Appointment(QWidget *parent, QString userID) :
+Appointment::Appointment(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Appointment)
 {
     ui->setupUi(this);
-
-    this->userID = userID;
-
-
 }
 
 Appointment::~Appointment()

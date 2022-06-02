@@ -13,8 +13,9 @@ MainWindow::MainWindow(QWidget *parent)
     m_doctors = new Doctors();
     m_openingScreen = new OpeningScreen();
     m_openingModel = new OpeningModel();
+    m_appointment_timeline = new AppointmentTimeline();
     widgets.push_back(m_appointment);
-    widgets.push_back(m_appointment);
+    widgets.push_back(m_appointment_timeline);
     widgets.push_back(m_doctors);
 
     m_openingModel->setGui(m_openingScreen);
@@ -25,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->stackedWidget->insertWidget(1, m_appointment);
     ui->stackedWidget->insertWidget(2, m_reportScreen);
     ui->stackedWidget->insertWidget(3,m_doctors);
+    ui->stackedWidget->insertWidget(4,m_appointment_timeline);
 
     ui->stackedWidget->setCurrentWidget(m_openingScreen);
 
@@ -38,10 +40,24 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_openingModel, &OpeningModel::sendLoginProgress, this, &MainWindow::showProgress);
     connect(m_openingModel, &OpeningModel::currentUser, client, &Client::setCurrentUser);
     connect(m_openingModel, &OpeningModel::showMainWindows, this, &MainWindow::showMainWindows);
+    connect(client,&Client::returnAppointments,m_appointment_timeline,&AppointmentTimeline::setAppointmentVector);
+//    connect(m_openingModel, &OpeningModel::showMainWindows, this, [this](){
+//        showMainWindows();
+
+//        QByteArray header;
+//        int messageType = MessageHeader::returnMessage;
+//        int messageEntity = MessageHeader::AppointmentEnt;
+
+//        header.prepend(QString::number(messageEntity).toUtf8() + ",");
+//        header.prepend(QString::number(messageType).toUtf8() + ",");
+
+//        client->sendMessage(header,"");
+//    });
 
     ui->appointmentButton->hide();
     ui->reportButton->hide();
     ui->docButton->hide();
+    ui->appTimelineButton->hide();
 
 
 }
@@ -68,6 +84,11 @@ void MainWindow::on_docButton_clicked()
     ui->stackedWidget->setCurrentWidget(m_doctors);
 }
 
+void MainWindow::on_appTimelineButton_clicked()
+{
+    ui->stackedWidget->setCurrentWidget(m_appointment_timeline);
+}
+
 void MainWindow::showProgress(QString progress)
 {
     ui->statusBar->showMessage(progress);
@@ -75,6 +96,11 @@ void MainWindow::showProgress(QString progress)
 
 void MainWindow::showMainWindows()
 {
-    on_appointmentButton_clicked();
+    ui->appointmentButton->show();
+    ui->reportButton->show();
+    ui->docButton->show();
+    ui->appTimelineButton->show();
+    on_appTimelineButton_clicked();
 }
+
 

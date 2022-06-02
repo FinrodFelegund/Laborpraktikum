@@ -104,7 +104,7 @@ void Client::setCurrentUser(User *currUser)
 void Client::sendMessage(QByteArray header, QString message)
 {
 
-    //message += m_user->getUID()+","; //Add User ID here for safty so all messages have the same ID
+    message += m_user->getUID()+","; //Add User ID here for safty so all messages have the same ID
 
     int length = 0;
     QByteArray messageToSend = krypter->encrypt(message, &length);
@@ -154,6 +154,13 @@ void Client::processNewMessage(QString header, QByteArray buffer)
 
     }
 
+    case MessageHeader::AppointmentEnt:
+    {
+        QString buf = krypter->decrypt(buffer, cipherLength);
+        qDebug() << buf;
+        emit returnAppointments(buf);
+    }
+        break;
     case MessageHeader::DoctorSaved:
       QMessageBox::information(nullptr, "Arzt wurde gespeichert!","Der Arzt wurde erfolgreich gespeichert.");
         break;

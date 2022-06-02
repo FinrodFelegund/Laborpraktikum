@@ -12,6 +12,7 @@
 #include "doctors.h"
 #include "OpeningScreen/openingscreen.h"
 #include "OpeningScreen/openingmodel.h"
+#include "appointmenttimeline.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -35,6 +36,8 @@ private slots:
 
     void on_docButton_clicked();
 
+    void on_appTimelineButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     Client *client;
@@ -44,5 +47,6 @@ private:
     OpeningModel *m_openingModel;
     OpeningScreen * m_openingScreen;
     std::vector<QWidget*> widgets;
+    AppointmentTimeline *m_appointment_timeline;
 };
 #endif // MAINWINDOW_H

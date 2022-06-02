@@ -14,9 +14,11 @@ public:
     bool saveAppointmentInDb(AppointmentEntity ent, QString user_id);
     bool saveUserInDb(User user);
 
-    int findUserInDatabase(User user);
+    int findUserInDb(User user);
     QString getPasswordFromUser(User user);
-    void setLoginStateInDB(QString userID, bool loginState);
+    void setLoginStateInDb(QString user_id, bool loginState);
+
+    std::vector<std::shared_ptr<Entity>> selectAppointmentsFromDatabase(QString user_id);
 
 private:
     QSqlDatabase db;

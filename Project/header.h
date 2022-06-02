@@ -18,19 +18,21 @@ enum MessageHeader
     loginRequest,
     signUpRequest,
     passwortRequest,
+    DoNothing,
+    ReturnInformation,
 
     //entity Types e.g. Appointment etc;  to be completed
     AppointmentEnt,
     DoctorEnt,
     UserEnt,
 
+    //Return Message Entity Types
     DoctorSaved,
     AppointmentSaved,
     DoctorNotSaved,
     AppointmentNotSaved,
-    DoNothing
-
-
+    UserSaved,
+    UserNotSaved
 
 };
 
