@@ -159,8 +159,15 @@ void Client::processNewMessage(QString header, QByteArray buffer)
         QString buf = krypter->decrypt(buffer, cipherLength);
         qDebug() << buf;
         emit returnAppointments(buf);
-    }
         break;
+    }
+    case MessageHeader::DoctorEnt:
+    {
+        QString buf = krypter->decrypt(buffer, cipherLength);
+        qDebug() << buf;
+        emit returnDoctors(buf);
+        break;
+    }
     case MessageHeader::DoctorSaved:
       QMessageBox::information(nullptr, "Arzt wurde gespeichert!","Der Arzt wurde erfolgreich gespeichert.");
         break;

@@ -65,6 +65,7 @@ private:
 
     //Server functions that send Entities
     std::vector<std::shared_ptr<Entity>> selectAppointmentsFromDatabase(QString userID);
+    std::vector<std::shared_ptr<Entity>> selectDoctorsFromDatabase(QString user_id);
 
 
     void returnMessage(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);

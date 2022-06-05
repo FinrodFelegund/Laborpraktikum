@@ -443,9 +443,16 @@ void MainWindow::returnMessage(int entityType, int cipherLength, QByteArray buff
         header.append(QString::number(MessageHeader::returnMessage).toUtf8()+ ",");
         header.append(QString::number(MessageHeader::AppointmentEnt).toUtf8()+ ",");
         sendMessage(receiver,message,header);
+        break;
     }
     case MessageHeader::DoctorEnt:
+    {
+        auto message = selectDoctorsFromDatabase(list[0]);
+        header.append(QString::number(MessageHeader::returnMessage).toUtf8()+ ",");
+        header.append(QString::number(MessageHeader::DoctorEnt).toUtf8()+ ",");
+        sendMessage(receiver,message,header);
         break;
+    }
     case MessageHeader::DoctorSaved:
     case MessageHeader::DoctorNotSaved:
     case MessageHeader::AppointmentSaved:
@@ -499,6 +506,11 @@ void MainWindow::sendMessage(QTcpSocket *socket, std::vector<std::shared_ptr<Ent
 std::vector<std::shared_ptr<Entity>> MainWindow::selectAppointmentsFromDatabase(QString userID)
 {
     return db.selectAppointmentsFromDatabase(userID);
+}
+
+std::vector<std::shared_ptr<Entity> > MainWindow::selectDoctorsFromDatabase(QString user_id)
+{
+    return db.selectDoctorsFromDatabase(user_id);
 }
 
 QString MainWindow::getPasswordFromUser(User user)

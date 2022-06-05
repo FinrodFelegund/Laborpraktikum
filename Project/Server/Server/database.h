@@ -19,6 +19,7 @@ public:
     void setLoginStateInDb(QString user_id, bool loginState);
 
     std::vector<std::shared_ptr<Entity>> selectAppointmentsFromDatabase(QString user_id);
+    std::vector<std::shared_ptr<Entity>> selectDoctorsFromDatabase(QString user_id);
 
 private:
     QSqlDatabase db;

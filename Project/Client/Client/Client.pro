@@ -19,6 +19,7 @@ SOURCES += \
     appointment.cpp \
     appointmenttimeline.cpp \
     client.cpp \
+    doctoroverview.cpp \
     doctors.cpp \
     OpeningScreen/login.cpp \
     main.cpp \
@@ -33,6 +34,7 @@ HEADERS += \
     appointment.h \
     appointmenttimeline.h \
     client.h \
+    doctoroverview.h \
     doctors.h \
     OpeningScreen/login.h \
     mainwindow.h \
@@ -45,6 +47,7 @@ HEADERS += \
 FORMS += \
     appointment.ui \
     appointmenttimeline.ui \
+    doctoroverview.ui \
     doctors.ui \
     OpeningScreen/login.ui \
     mainwindow.ui \

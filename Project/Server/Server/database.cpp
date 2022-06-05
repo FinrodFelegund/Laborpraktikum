@@ -205,3 +205,50 @@ std::vector<std::shared_ptr<Entity> > Database::selectAppointmentsFromDatabase(Q
     }
     return appEntVector;
 }
+
+std::vector<std::shared_ptr<Entity> > Database::selectDoctorsFromDatabase(QString user_id)
+{
+    qDebug()<<"Select all Doctors for User:"+user_id;
+    bool executed=false;
+    std::vector<std::shared_ptr<Entity>> docEntVector;
+
+    if(user_id.toInt() > -1){
+        if(db.open()){
+            QSqlQuery querySelect(db);
+            querySelect.prepare("select did,doctorname,street,streetnumber,city,plz,phone from doctors where uid= ?");
+            querySelect.bindValue(0,user_id.toInt());
+            executed = querySelect.exec();
+            qDebug()<< executed;
+            QSqlError error= querySelect.lastError();
+            std::cout<<error.databaseText().toUtf8().constData();
+
+            QString doctor_id;
+            QString name;
+            QString street;
+            QString streetNumber;
+            QString city;
+            QString postalCode;
+            QString phoneNumber;
+
+            if(executed){
+                while (querySelect.next()) {
+                        doctor_id = querySelect.value(0).toString();
+                        name = querySelect.value(1).toString();
+                        street = querySelect.value(2).toString();
+                        streetNumber = querySelect.value(3).toString();
+                        city = querySelect.value(4).toString();
+                        postalCode = querySelect.value(5).toString();
+                        phoneNumber = querySelect.value(6).toString();
+
+
+                        std::shared_ptr<DoctorEntityId> docEnt=std::make_shared<DoctorEntityId>();
+                        docEnt->setProperties(doctor_id,name,street,streetNumber,city,postalCode,phoneNumber);
+                        docEntVector.push_back(docEnt);
+                        qDebug()<<"Neuer Arzt: " + docEnt->getPropertiesAsString();
+                    }
+            }
+
+        }
+    }
+    return docEntVector;
+}

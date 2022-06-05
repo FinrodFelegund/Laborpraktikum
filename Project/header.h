@@ -127,6 +127,20 @@ class DoctorEntity : public Entity
 
 };
 
+class DoctorEntityId: public DoctorEntity{
+
+public:
+    DoctorEntityId(){};
+    ~DoctorEntityId(){};
+    void setProperties(QString doctor_id, QString name, QString street, QString streetNumber, QString city, QString postalCode, QString phoneNumber);
+    void setPropertiesAsEntity(QStringList list);
+    void print();
+    QString getPropertiesAsString();
+
+private:
+    QString doctor_id;
+};
+
 class Krypter
 {
     public:

@@ -14,9 +14,12 @@ MainWindow::MainWindow(QWidget *parent)
     m_openingScreen = new OpeningScreen();
     m_openingModel = new OpeningModel();
     m_appointment_timeline = new AppointmentTimeline();
+    m_doctor_overview = new DoctorOverview();
+
     widgets.push_back(m_appointment);
     widgets.push_back(m_appointment_timeline);
     widgets.push_back(m_doctors);
+    widgets.push_back(m_doctor_overview);
 
     m_openingModel->setGui(m_openingScreen);
     m_openingModel->connectGui();
@@ -27,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->stackedWidget->insertWidget(2, m_reportScreen);
     ui->stackedWidget->insertWidget(3,m_doctors);
     ui->stackedWidget->insertWidget(4,m_appointment_timeline);
+    ui->stackedWidget->insertWidget(5,m_doctor_overview);
 
     ui->stackedWidget->setCurrentWidget(m_openingScreen);
 
@@ -41,6 +45,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_openingModel, &OpeningModel::currentUser, client, &Client::setCurrentUser);
     connect(m_openingModel, &OpeningModel::showMainWindows, this, &MainWindow::showMainWindows);
     connect(client,&Client::returnAppointments,m_appointment_timeline,&AppointmentTimeline::setAppointmentVector);
+    connect(client,&Client::returnDoctors,m_doctor_overview,&DoctorOverview::setDoctorText);
+    connect(m_doctor_overview, &DoctorOverview::getAllDoctors,client, &Client::sendMessage);
 //    connect(m_openingModel, &OpeningModel::showMainWindows, this, [this](){
 //        showMainWindows();
 
@@ -58,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->reportButton->hide();
     ui->docButton->hide();
     ui->appTimelineButton->hide();
+    ui->allDocsButton->hide();
 
 
 }
@@ -99,8 +106,15 @@ void MainWindow::showMainWindows()
     ui->appointmentButton->show();
     ui->reportButton->show();
     ui->docButton->show();
+    ui->allDocsButton->show();
     ui->appTimelineButton->show();
     on_appTimelineButton_clicked();
 }
 
+
+
+void MainWindow::on_allDocsButton_clicked()
+{
+    ui->stackedWidget->setCurrentWidget(m_doctor_overview);
+}
 

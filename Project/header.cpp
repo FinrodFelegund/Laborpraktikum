@@ -329,3 +329,28 @@ void User::setPassword(QString password)
 {
     this->password = password;
 }
+
+void DoctorEntityId::setProperties(QString doctor_id, QString name, QString street, QString streetNumber, QString city, QString postalCode, QString phoneNumber)
+{
+    this->doctor_id=doctor_id;
+    DoctorEntity::setProperties(name,street,streetNumber,city,postalCode,phoneNumber);
+
+}
+
+void DoctorEntityId::setPropertiesAsEntity(QStringList list)
+{
+    doctor_id = list[0];
+    list.pop_front();
+    DoctorEntity::setPropertiesAsEntity(list);
+}
+
+void DoctorEntityId::print()
+{
+    qDebug() << doctor_id << " " ;
+    DoctorEntity::print();
+}
+
+QString DoctorEntityId::getPropertiesAsString()
+{
+    return doctor_id + "," + DoctorEntity::getPropertiesAsString();
+}
