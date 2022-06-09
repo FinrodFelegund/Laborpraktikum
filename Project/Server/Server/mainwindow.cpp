@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 //#include "../../header.h"
+#include <QtConcurrent>
+#include <QFuture>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -24,6 +26,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     krypter = new Krypter;
     eMailClient = new EMailClient();
+
+
+
 
 }
 
@@ -59,6 +64,7 @@ void MainWindow::appendToSocketList(QTcpSocket* socket){
     connect(socket, &QAbstractSocket::errorOccurred, this, &MainWindow::displayError);
     QString str = QString("INFO :: Client with socketID:%1 has just entered the room.").arg(socket->socketDescriptor());
     qDebug() << str;
+
 }
 
 void MainWindow::readSocket(){
@@ -167,6 +173,8 @@ void MainWindow::displayMessage(QString header, QByteArray buffer, long long soc
     int entityType = headerSplit[1].toInt();
     int cipherLength = headerSplit[2].toInt();
 
+
+
     //qDebug() << messageType << " " << entityType << " " << cipherLength;
 
     buffer = buffer.mid(128);
@@ -205,6 +213,12 @@ void MainWindow::displayMessage(QString header, QByteArray buffer, long long soc
             qDebug() << "Password Request received";
             sendEmailToUserAndReturnStatus(entityType, cipherLength, buffer, socketDescriptor);
             break;
+        }
+
+        case MessageHeader::logoutRequest:
+        {
+            qDebug() << "Logout Request received";
+
         }
 
         default:
@@ -263,11 +277,11 @@ void MainWindow::loginUserAndReturnStatus(int entityType, int cipherLength, QByt
     User user;
     user.setPropertiesAsEntity(list);
 
-
     //... find the user with given credentails
 
     int userID = findUserInDatabase(user);
     //User ID = 0 means user not in database -1 already logged in on other device, everything else is userID
+    qDebug() << userID;
     if(userID > 0)
     {
         setLoginStateInDB(QString::number(userID), true);
@@ -310,7 +324,9 @@ void MainWindow::signUpUserAndReturnStatus(int entityType, int cipherLength, QBy
     if(userID == 0)
     {
         retVal = createEntityAndSafeToDatabase(entityType, cipherLength, buffer); //ja es wird nochmal entschlüsselt I know
-        list[0] = QString::number(1); // Das ist nicht die UserId welche die DB vergibt sondern nur für OpeningModel gedacht um herauszufinden ob die Operation erfolgreich war
+        if(retVal == MessageHeader::UserNotSaved)
+            list[0] = QString::number(0);
+        else list[0] = QString::number(1);
 
     }
     else
@@ -331,10 +347,10 @@ void MainWindow::signUpUserAndReturnStatus(int entityType, int cipherLength, QBy
 
 int MainWindow::createEntityAndSafeToDatabase(int entityType, int cipherLength, QByteArray buffer)
 {
-    qDebug() << "reached 'createEntityAndSafeToDatabase' function";
+    //qDebug() << "reached 'createEntityAndSafeToDatabase' function";
 
     QString message = krypter->decrypt(buffer, cipherLength);
-    qDebug()<<"Message: " + message;
+    //qDebug()<<"Message: " + message;
     QStringList list = message.split(",");
 
     MessageHeader result=MessageHeader::DoNothing;
@@ -382,7 +398,7 @@ int MainWindow::createEntityAndSafeToDatabase(int entityType, int cipherLength, 
                 qDebug()<<"New User not saved";
                 result = MessageHeader::UserNotSaved;
             }
-
+        break;
         }
 
         default:
@@ -554,9 +570,8 @@ void MainWindow::mapUserToSocket(long long socketDescriptor, int userID)
 }
 
 
-
-
-
-
-
+void MainWindow::on_EMailTest_clicked()
+{
+    eMailClient->sendResetEMail();
+}
 

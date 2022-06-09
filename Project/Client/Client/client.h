@@ -17,6 +17,7 @@ public:
     ~Client();
     void processNewMessage(QString header, QByteArray buffer);
     User createUserFromBuffer();
+    void sendLogoutRequest();
 
 private slots:
 

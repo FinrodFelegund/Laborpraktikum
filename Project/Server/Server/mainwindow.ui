@@ -28,7 +28,7 @@
     <item row="1" column="0">
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="1" column="0">
-       <widget class="QPushButton" name="pushButton_sendMessage">
+       <widget class="QPushButton" name="EMailTest">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -39,7 +39,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Send Message</string>
+         <string>email test</string>
         </property>
        </widget>
       </item>
@@ -98,7 +98,7 @@
      <x>0</x>
      <y>0</y>
      <width>401</width>
-     <height>21</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>

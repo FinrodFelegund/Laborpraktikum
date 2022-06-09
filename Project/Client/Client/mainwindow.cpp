@@ -65,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->docButton->hide();
     ui->appTimelineButton->hide();
     ui->allDocsButton->hide();
+    ui->logoutButton->hide();
 
 
 }
@@ -108,6 +109,7 @@ void MainWindow::showMainWindows()
     ui->docButton->show();
     ui->allDocsButton->show();
     ui->appTimelineButton->show();
+    ui->logoutButton->show();
     on_appTimelineButton_clicked();
 }
 
@@ -116,5 +118,11 @@ void MainWindow::showMainWindows()
 void MainWindow::on_allDocsButton_clicked()
 {
     ui->stackedWidget->setCurrentWidget(m_doctor_overview);
+}
+
+
+void MainWindow::on_logoutButton_clicked()
+{
+    client->sendLogoutRequest();
 }
 

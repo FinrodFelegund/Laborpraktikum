@@ -5,6 +5,8 @@
 
 #include "smtpclient.h"
 #include "mimetext.h"
+#include "mimehtml.h"
+
 
 class User;
 
@@ -16,10 +18,15 @@ public:
     virtual ~EMailClient();
     bool sendEmail(User user);
 
+    bool sendResetEMail();
+
 
 private:
     QString m_Email = "pietsch-daniel1@gmx.de";
     QString m_password = "R25$NCq7p&";
+
+
+
 
 };
 

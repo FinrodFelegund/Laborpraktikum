@@ -41,6 +41,8 @@ private slots:
 
     void on_allDocsButton_clicked();
 
+    void on_logoutButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     Client *client;

@@ -72,7 +72,7 @@ void OpeningModel::receiveMessage(QString buffer, int messageType)
             }
             else
             {
-                emit sendLoginProgress("Sign up not successful. User already exists");
+                emit sendLoginProgress("Sign up not successful. User already exists or Sign Up failed");
             }
 
             break;

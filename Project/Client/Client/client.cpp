@@ -185,6 +185,17 @@ void Client::processNewMessage(QString header, QByteArray buffer)
     }
 }
 
+void Client::sendLogoutRequest()
+{
+    QByteArray header;
+    header.append(QString::number(MessageHeader::logoutRequest).toUtf8() + ",");
+    header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
+    header.append(QString::number(0).toUtf8() + ",");
+    QString buffer;
+
+    sendMessage(header, buffer);
+}
+
 
 
 

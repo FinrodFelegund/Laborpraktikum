@@ -20,6 +20,7 @@ enum MessageHeader
     passwortRequest,
     DoNothing,
     ReturnInformation,
+    logoutRequest,
 
     //entity Types e.g. Appointment etc;  to be completed
     AppointmentEnt,
@@ -32,9 +33,14 @@ enum MessageHeader
     DoctorNotSaved,
     AppointmentNotSaved,
     UserSaved,
-    UserNotSaved
+    UserNotSaved,
+    logoutSuccessful,
+    logoutNotSuccessful
+
 
 };
+
+
 
 
 class Entity

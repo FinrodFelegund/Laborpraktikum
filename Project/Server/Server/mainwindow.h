@@ -36,6 +36,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+
 signals:
     void newMessage(QString header, QByteArray message, long long socketDescriptor);
 
@@ -49,7 +50,11 @@ private slots:
     void displayMessage(QString header, QByteArray str, long long socketDescriptor);
     void sendMessage(QTcpSocket *socket, std::vector<std::shared_ptr<Entity>> entities, QByteArray header);
 
+    void on_EMailTest_clicked();
+
 private:
+
+
 
     int createEntityAndSafeToDatabase(int entityType, int cipherLength, QByteArray buffer);
 

@@ -82,18 +82,20 @@ bool Database::saveUserInDb(User user)
     if(db.open())
     {
         QSqlQuery queryInsert(db);
-        queryInsert.prepare("insert into Users(email, passwort, loginState) values(?, ?, ?)");
+        queryInsert.prepare("insert into Users(email, passwort, loginState) values(md5(?), md5(?), ?)");
         queryInsert.bindValue(0, user.getEmail());
-        queryInsert.bindValue(1, user.getPassword());
+        queryInsert.bindValue(1,  user.getPassword());
         queryInsert.bindValue(2, logedIn);
 
         executed = queryInsert.exec();
-        qDebug() << "In Save User In db: " << executed;
+        //qDebug() << "In Save User In db: " << executed;
         QSqlError error = queryInsert.lastError();
         qDebug() << error;
+        db.commit();
         return executed;
     }
 
+    db.commit();
     return executed;
 }
 
@@ -102,7 +104,7 @@ int Database::findUserInDb(User user)
     if(db.open())
     {
         QSqlQuery queryFind(db);
-        queryFind.prepare("select uid, loginState from Users where email = '" +user.getEmail()+ "' "); // +password
+        queryFind.prepare("select uid, loginState from Users where email = md5('" +user.getEmail()+ "')"); // +password
 
         qDebug() << queryFind.exec();
         QSqlError error = queryFind.lastError();
@@ -115,12 +117,15 @@ int Database::findUserInDb(User user)
 
         if(queryFind.isValid())
         {
+
             userID = queryFind.value(0).toInt();
             loginState = queryFind.value(1).toInt();
+            qDebug() << "valid" << " " << userID << " " << loginState;
             return (loginState == 1 ? -1 : userID);
 
         } else
         {
+            qDebug() << "invalid";
             return 0;
         }
 
@@ -158,7 +163,8 @@ void Database::setLoginStateInDb(QString user_id, bool loginState)
     {
         QSqlQuery queryAlter(db);
         queryAlter.prepare("update Users set loginState = '"+QString::number(loginState)+"' where uid = '"+user_id+"'");
-        qDebug() << "In Function SetLoginState in DB: " << queryAlter.exec();
+        //qDebug() << "In Function SetLoginState in DB: " <<
+        queryAlter.exec();
         QSqlError error = queryAlter.lastError();
         qDebug() << error;
     }
@@ -166,7 +172,7 @@ void Database::setLoginStateInDb(QString user_id, bool loginState)
 
 std::vector<std::shared_ptr<Entity> > Database::selectAppointmentsFromDatabase(QString user_id)
 {
-    qDebug()<<"Select all Appointments for User:"+user_id;
+    qDebug()<<"Select all Appointments for User: " << user_id;
     bool executed=false;
     std::vector<std::shared_ptr<Entity>> appEntVector;
 
@@ -208,7 +214,7 @@ std::vector<std::shared_ptr<Entity> > Database::selectAppointmentsFromDatabase(Q
 
 std::vector<std::shared_ptr<Entity> > Database::selectDoctorsFromDatabase(QString user_id)
 {
-    qDebug()<<"Select all Doctors for User:"+user_id;
+    qDebug()<<"Select all Doctors for User: " << user_id;
     bool executed=false;
     std::vector<std::shared_ptr<Entity>> docEntVector;
 
