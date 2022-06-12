@@ -28,11 +28,13 @@ void AppointmentTimeline::setAppointmentVector(QString appointments)
     }
 
     for(const auto &currApp:allAppointments){
+        if(currApp!=""){
         QStringList currAppList = currApp.split(",");
 
         std::shared_ptr<AppointmentEntity> appEnt=std::make_shared<AppointmentEntity>();
         appEnt->setPropertiesAsEntity(currAppList);
         appEntVector.push_back(appEnt);
+        }
     }
 
     showList();
@@ -46,7 +48,7 @@ void AppointmentTimeline::showList()
     ui->allAppointments->setRowCount(appEntVector.size());
 
     int i = 0;
-    for(auto currApp:appEntVector){
+    for(const auto &currApp:appEntVector){
         ui->allAppointments->setItem(i,0,new QTableWidgetItem(currApp->getDate()));
         ui->allAppointments->setItem(i,1,new QTableWidgetItem(currApp->getTime()));
         ui->allAppointments->setItem(i,2,new QTableWidgetItem(currApp->getTitle()));

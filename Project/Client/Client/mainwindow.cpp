@@ -52,6 +52,19 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_applicationModel, &ApplicationModel::sendApplicationProgress, this, &MainWindow::showProgress);
     connect(m_applicationModel, &ApplicationModel::logoutUser, this, &MainWindow::returnToLogin);
 
+        connect(m_openingModel, &OpeningModel::showMainWindows, this, [this](){
+            showMainWindows();
+
+            QByteArray header;
+            int messageType = MessageHeader::returnMessage;
+            int messageEntity = MessageHeader::AppointmentEnt;
+
+            header.prepend(QString::number(messageEntity).toUtf8() + ",");
+            header.prepend(QString::number(messageType).toUtf8() + ",");
+
+            client->sendMessage(header,"");
+        });
+
     ui->appointmentButton->hide();
     ui->reportButton->hide();
     ui->docButton->hide();

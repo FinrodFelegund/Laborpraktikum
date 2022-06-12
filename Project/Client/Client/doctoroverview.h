@@ -2,6 +2,7 @@
 #define DOCTOROVERVIEW_H
 
 #include <QWidget>
+//#include "../../header.h"
 
 namespace Ui {
 class DoctorOverview;
@@ -24,7 +25,10 @@ private slots:
     void on_loadDocsButton_clicked();
 
 private:
+    void showDocTable(QString doctors);
+
     Ui::DoctorOverview *ui;
+    //std::vector<std::shared_ptr<DoctorEntityId>> docEntVector;
 };
 
 #endif // DOCTOROVERVIEW_H

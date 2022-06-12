@@ -552,6 +552,7 @@ void MainWindow::sendMessage(QTcpSocket *socket, std::vector<std::shared_ptr<Ent
 
 std::vector<std::shared_ptr<Entity>> MainWindow::selectAppointmentsFromDatabase(QString userID)
 {
+    //db.selectDateTest();
     return db.selectAppointmentsFromDatabase(userID);
 }
 

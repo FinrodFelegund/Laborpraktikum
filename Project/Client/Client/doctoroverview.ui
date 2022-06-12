@@ -28,9 +28,6 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="3">
-    <widget class="QTextEdit" name="docOverview"/>
-   </item>
    <item row="0" column="1">
     <spacer name="horizontalSpacer">
      <property name="orientation">
@@ -43,6 +40,40 @@
       </size>
      </property>
     </spacer>
+   </item>
+   <item row="2" column="0" colspan="3">
+    <widget class="QTableWidget" name="docTable">
+     <column>
+      <property name="text">
+       <string>Name</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Straße</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Hausnummer</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Postleitzahl</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Stadt</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Telefonnummer</string>
+      </property>
+     </column>
+    </widget>
    </item>
   </layout>
  </widget>

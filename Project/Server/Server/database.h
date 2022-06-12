@@ -21,6 +21,8 @@ public:
     std::vector<std::shared_ptr<Entity>> selectAppointmentsFromDatabase(QString user_id);
     std::vector<std::shared_ptr<Entity>> selectDoctorsFromDatabase(QString user_id);
 
+    bool selectDateTest();
+
 
 private:
     QSqlDatabase db;

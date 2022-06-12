@@ -24,7 +24,13 @@ bool Database::saveDoctorInDb(DoctorEntity ent, QString user_id)
                         queryInsert.prepare("insert into doctors(doctorname, street, streetnumber, city, plz, phone, uid) VALUES(?,?,?,?,?,?,?)");
                         queryInsert.bindValue(0,ent.getName());
                         queryInsert.bindValue(1,ent.getStreet());
-                        queryInsert.bindValue(2,ent.getStreetNumber());
+                        if(ent.getStreet()!=""){
+                            queryInsert.bindValue(2,ent.getStreetNumber());
+                        }
+                        else {
+                            queryInsert.bindValue(2,"");
+                        }
+
                         queryInsert.bindValue(3,ent.getCity());
                         queryInsert.bindValue(4,ent.getPostalCode());
                         queryInsert.bindValue(5,ent.getPhoneNumber());
@@ -187,7 +193,7 @@ std::vector<std::shared_ptr<Entity> > Database::selectAppointmentsFromDatabase(Q
     if(user_id.toInt() > -1){
         if(db.open()){
             QSqlQuery querySelect(db);
-            querySelect.prepare("select appdate,apptime,title,notes,did from appointments where uid= ?");
+            querySelect.prepare("SELECT appdate, apptime, title, notes, did FROM appointments WHERE uid= ?");
             querySelect.bindValue(0,user_id.toInt());
             executed = querySelect.exec();
             qDebug()<< executed;
@@ -203,6 +209,7 @@ std::vector<std::shared_ptr<Entity> > Database::selectAppointmentsFromDatabase(Q
             if(executed){
                 while (querySelect.next()) {
                         date = querySelect.value(0).toDate();
+                        qDebug()<<"date: " << date.toString();
                         time = querySelect.value(1).toTime();
                         title = querySelect.value(2).toString();
                         text = querySelect.value(3).toString();
@@ -265,4 +272,31 @@ std::vector<std::shared_ptr<Entity> > Database::selectDoctorsFromDatabase(QStrin
         }
     }
     return docEntVector;
+}
+
+bool Database::selectDateTest()
+{
+    bool executed=false;
+
+        if(db.open()){
+            QSqlQuery querySelect(db);
+            querySelect.prepare("select appdate from appointments where uid = 1");
+            executed = querySelect.exec();
+            qDebug()<< executed;
+            QSqlError error= querySelect.lastError();
+            std::cout<<error.databaseText().toUtf8().constData();
+
+            //QString date;
+            QDate date;
+
+            if(executed){
+                while (querySelect.next()) {
+                        date = querySelect.value(0).toDate();
+                        qDebug()<<"Neuer Termin Datum: " + date.toString();
+                    }
+            }
+
+        }
+
+    return executed;
 }
