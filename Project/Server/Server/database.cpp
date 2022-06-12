@@ -157,8 +157,9 @@ QString Database::getPasswordFromUser(User user)
     return password;
 }
 
-void Database::setLoginStateInDb(QString user_id, bool loginState)
+bool Database::setLoginStateInDb(QString user_id, bool loginState)
 {
+
     if(db.open())
     {
         QSqlQuery queryAlter(db);
@@ -166,8 +167,15 @@ void Database::setLoginStateInDb(QString user_id, bool loginState)
         //qDebug() << "In Function SetLoginState in DB: " <<
         queryAlter.exec();
         QSqlError error = queryAlter.lastError();
-        qDebug() << error;
+        if(error.text().isEmpty())
+        {
+            qDebug() << error;
+            return true;
+        }
+
     }
+
+    return false;
 }
 
 std::vector<std::shared_ptr<Entity> > Database::selectAppointmentsFromDatabase(QString user_id)

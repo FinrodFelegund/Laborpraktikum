@@ -14,6 +14,7 @@
 #include "OpeningScreen/openingmodel.h"
 #include "appointmenttimeline.h"
 #include "doctoroverview.h"
+#include "applicationmodel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -43,6 +44,8 @@ private slots:
 
     void on_logoutButton_clicked();
 
+    void returnToLogin();
+
 private:
     Ui::MainWindow *ui;
     Client *client;
@@ -50,6 +53,7 @@ private:
     ReportScreen *m_reportScreen;
     Doctors *m_doctors;
     OpeningModel *m_openingModel;
+    ApplicationModel *m_applicationModel;
     OpeningScreen * m_openingScreen;
     std::vector<QWidget*> widgets;
     AppointmentTimeline *m_appointment_timeline;

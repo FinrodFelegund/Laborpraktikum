@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_openingModel = new OpeningModel();
     m_appointment_timeline = new AppointmentTimeline();
     m_doctor_overview = new DoctorOverview();
+    m_applicationModel = new ApplicationModel();
 
     widgets.push_back(m_appointment);
     widgets.push_back(m_appointment_timeline);
@@ -47,18 +48,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(client,&Client::returnAppointments,m_appointment_timeline,&AppointmentTimeline::setAppointmentVector);
     connect(client,&Client::returnDoctors,m_doctor_overview,&DoctorOverview::setDoctorText);
     connect(m_doctor_overview, &DoctorOverview::getAllDoctors,client, &Client::sendMessage);
-//    connect(m_openingModel, &OpeningModel::showMainWindows, this, [this](){
-//        showMainWindows();
-
-//        QByteArray header;
-//        int messageType = MessageHeader::returnMessage;
-//        int messageEntity = MessageHeader::AppointmentEnt;
-
-//        header.prepend(QString::number(messageEntity).toUtf8() + ",");
-//        header.prepend(QString::number(messageType).toUtf8() + ",");
-
-//        client->sendMessage(header,"");
-//    });
+    connect(client, &Client::pendingLogoutRequest, m_applicationModel, &ApplicationModel::receiveMessage);
+    connect(m_applicationModel, &ApplicationModel::sendApplicationProgress, this, &MainWindow::showProgress);
+    connect(m_applicationModel, &ApplicationModel::logoutUser, this, &MainWindow::returnToLogin);
 
     ui->appointmentButton->hide();
     ui->reportButton->hide();
@@ -124,5 +116,17 @@ void MainWindow::on_allDocsButton_clicked()
 void MainWindow::on_logoutButton_clicked()
 {
     client->sendLogoutRequest();
+}
+
+void MainWindow::returnToLogin()
+{
+    ui->appointmentButton->hide();
+    ui->reportButton->hide();
+    ui->docButton->hide();
+    ui->appTimelineButton->hide();
+    ui->allDocsButton->hide();
+    ui->logoutButton->hide();
+
+      ui->stackedWidget->setCurrentWidget(m_openingScreen);
 }
 

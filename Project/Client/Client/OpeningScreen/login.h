@@ -20,7 +20,7 @@ public:
     QString getEmail() const;
     QString getPassword() const;
     bool createPasswordRequestDialog(User *user);
-
+    void clearGui();
 
 signals:
     void showSignUp();
@@ -37,7 +37,7 @@ private slots:
 
 private:
     Ui::Login *ui;
-    void clearGui();
+
     QString eMail;
     QString password;
 

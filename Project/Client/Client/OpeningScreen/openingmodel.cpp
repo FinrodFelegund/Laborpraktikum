@@ -49,9 +49,12 @@ void OpeningModel::receiveMessage(QString buffer, int messageType)
 
         case MessageHeader::loginRequest:
         {
+            auto login = screen->getLogin();
+            login->clearGui();
             if(m_user->getUID().toInt() > 0)
             {
 
+                login->clearGui();
                 emit sendLoginProgress("Login successful");
                 emit currentUser(m_user);
                 emit showMainWindows();
@@ -59,6 +62,7 @@ void OpeningModel::receiveMessage(QString buffer, int messageType)
             }
             else if (m_user->getUID().toInt() <= 0)
             {
+
                 emit sendLoginProgress("Login failed. User either logged in on other device or doesn't exist");
             }
             break;
@@ -66,8 +70,10 @@ void OpeningModel::receiveMessage(QString buffer, int messageType)
 
         case MessageHeader::signUpRequest:
         {
+            //auto signup = screen->getSignUp();
             if(m_user->getUID().toInt() > 0)
             {
+
                 emit sendLoginProgress("Sign up successful!");
             }
             else

@@ -218,6 +218,7 @@ void MainWindow::displayMessage(QString header, QByteArray buffer, long long soc
         case MessageHeader::logoutRequest:
         {
             qDebug() << "Logout Request received";
+            logoutUserAndReturnStatus(entityType, cipherLength, buffer, socketDescriptor);
 
         }
 
@@ -225,6 +226,36 @@ void MainWindow::displayMessage(QString header, QByteArray buffer, long long soc
         break;
 
     }
+
+}
+
+void MainWindow::logoutUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor)
+{
+    QTcpSocket *receiver = getSocket(socketDescriptor);
+    int userID = getUserIDFromSocketList(socketDescriptor);
+    bool retVal = db.setLoginStateInDb(QString::number(userID), false);
+
+    std::vector<std::shared_ptr<Entity>> ents;
+    ents.push_back(std::make_shared<User>());
+    QStringList list;
+    list.append(QString::number(retVal));
+    list.append(" ");
+    list.append(" ");
+    ents[0]->setPropertiesAsEntity(list);
+
+    QByteArray header;
+    if(retVal){
+        mapUserToSocket(socketDescriptor, 0);  // 0 means no User loged in under this socket, but socket still connected to server
+        header.append(QString::number(MessageHeader::logoutRequest).toUtf8() + ",");
+        header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
+    } else
+    {
+        header.append(QString::number(MessageHeader::logoutRequest).toUtf8() + ",");
+        header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
+    }
+
+    qDebug() << "we reached sendMessage";
+    sendMessage(receiver, ents, header);
 
 }
 
@@ -567,6 +598,17 @@ void MainWindow::mapUserToSocket(long long socketDescriptor, int userID)
         if(m_connectionSet[i].m_connection->socketDescriptor() == socketDescriptor)
             m_connectionSet[i].userID = userID;
     }
+}
+
+int MainWindow::getUserIDFromSocketList(long long socketDescriptor)
+{
+    for(unsigned long i = 0; i < m_connectionSet.size(); i++)
+    {
+        if(socketDescriptor == m_connectionSet[i].m_connection->socketDescriptor())
+            return m_connectionSet[i].userID;
+    }
+
+    return 0;
 }
 
 

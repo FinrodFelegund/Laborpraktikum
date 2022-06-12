@@ -139,7 +139,7 @@ void Client::processNewMessage(QString header, QByteArray buffer)
     int entityType = headerSplit[1].toInt();
     int cipherLength = headerSplit[2].toInt();
 
-    //qDebug() << messageType << " " << entityType << " " << cipherLength;
+    qDebug() << messageType << " " << entityType << " " << cipherLength;
 
     buffer = buffer.mid(128);
 
@@ -147,11 +147,23 @@ void Client::processNewMessage(QString header, QByteArray buffer)
     {
     case MessageHeader::UserEnt:
     {
-            QString buf = krypter->decrypt(buffer, cipherLength);
-            qDebug() << buf;
-            emit pendingOpeningRequest(buf, messageType);
-            break;
+            if(messageType == MessageHeader::loginRequest || messageType == MessageHeader::signUpRequest)
+            {
+                QString buf = krypter->decrypt(buffer, cipherLength);
+                qDebug() << buf;
+                emit pendingOpeningRequest(buf, messageType);
+                break;
+            }
 
+            if(messageType == MessageHeader::logoutRequest)
+            {
+                QString buf = krypter->decrypt(buffer, cipherLength);
+                qDebug() << "0 : error, 1: success; " << buf;
+                emit pendingLogoutRequest(buf, messageType);
+                break;
+            }
+
+        break;
     }
 
     case MessageHeader::AppointmentEnt:
@@ -180,6 +192,7 @@ void Client::processNewMessage(QString header, QByteArray buffer)
     case MessageHeader::AppointmentNotSaved:
         QMessageBox::warning(nullptr,"Termin wurde nicht gespeichert!","Der Termin konnte nicht in der Datenbank gespeichert werden.");
         break;
+
 
 
     }

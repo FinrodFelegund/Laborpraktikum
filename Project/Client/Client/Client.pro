@@ -17,6 +17,7 @@ INCLUDEPATH += /usr/local/Cellar/openssl@3/3.0.3/include/ #Dani
 #INCLUDEPATH += C:\Users\User\Documents\LPR\Laborpraktikum\Project\openssl-3\x64\include #Hannah
 
 SOURCES += \
+    applicationmodel.cpp \
     appointment.cpp \
     appointmenttimeline.cpp \
     client.cpp \
@@ -32,6 +33,7 @@ SOURCES += \
     OpeningScreen/signup.cpp
 
 HEADERS += \
+    applicationmodel.h \
     appointment.h \
     appointmenttimeline.h \
     client.h \

@@ -33,10 +33,7 @@ enum MessageHeader
     DoctorNotSaved,
     AppointmentNotSaved,
     UserSaved,
-    UserNotSaved,
-    logoutSuccessful,
-    logoutNotSuccessful
-
+    UserNotSaved
 
 };
 

@@ -33,6 +33,7 @@ signals:
     void pendingOpeningRequest(QString buf, int messageType);
     void returnAppointments(QString buf);
     void returnDoctors(QString buf);
+    void pendingLogoutRequest(QString buffer,  int messageType);
 
 
 private:
