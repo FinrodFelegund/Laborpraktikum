@@ -110,7 +110,7 @@ int Database::findUserInDb(User user)
     if(db.open())
     {
         QSqlQuery queryFind(db);
-        queryFind.prepare("select uid, loginState from Users where email = md5('" +user.getEmail()+ "')"); // +password
+        queryFind.prepare("select uid, loginState from Users where email = md5('" +user.getEmail()+ "') and passwort = md5('"+user.getPassword()+"')"); // +password
 
         qDebug() << queryFind.exec();
         QSqlError error = queryFind.lastError();
@@ -147,7 +147,7 @@ QString Database::getPasswordFromUser(User user)
     if(db.open())
     {
         QSqlQuery queryFind(db);
-        queryFind.prepare("select passwort from Users where email = '"+user.getEmail()+"' ");
+        queryFind.prepare("select passwort from Users where email = md5('"+user.getEmail()+"') and password = md5('"+user.getPassword()+"') ");
         qDebug() << "Inf function getPasswordFromUser: " << queryFind.exec();
 
         QSqlError error = queryFind.lastError();

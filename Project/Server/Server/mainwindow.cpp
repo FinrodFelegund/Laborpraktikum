@@ -261,6 +261,8 @@ void MainWindow::logoutUserAndReturnStatus(int entityType, int cipherLength, QBy
 
 void MainWindow::sendEmailToUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor)
 {
+
+    //this needs a revamp
     QTcpSocket *receiver = getSocket(socketDescriptor);
     QString message = krypter->decrypt(buffer, cipherLength);
     QStringList list = message.split(",");
@@ -271,8 +273,9 @@ void MainWindow::sendEmailToUserAndReturnStatus(int entityType, int cipherLength
     user.setPassword(userCredential);
     int retVal = 0;
 
-    if(!userCredential.isEmpty())
-        retVal = eMailClient->sendEmail(user);
+    //if(!userCredential.isEmpty())
+
+    retVal = eMailClient->sendEmail(user);
 
     user.setUID(QString::number(retVal));
 

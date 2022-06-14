@@ -14,6 +14,8 @@ EMailClient::~EMailClient()
 
 bool EMailClient::sendEmail(User user)
 {
+
+    user.print();
     MimeMessage message;
     EmailAddress adresseSender("patientenakteoth@gmail.com", "Daniel Pietsch");
     message.setSender(adresseSender);
@@ -27,7 +29,7 @@ bool EMailClient::sendEmail(User user)
 
     MimeText text;
 
-    text.setText("Hi,\n Use this to reset your password:  http://localhost:8888/index.php");
+    text.setText("Hi,\n Use this to reset your password:  http://localhost:8888/index.php?email="+ user.getEmail());
 
     // Now add it to the mail
 

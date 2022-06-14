@@ -19,4 +19,6 @@ public slots:
 
 };
 
+bool checkForStrongPassword(QString passowrd);
+
 #endif // APPLICATIONMODEL_H
