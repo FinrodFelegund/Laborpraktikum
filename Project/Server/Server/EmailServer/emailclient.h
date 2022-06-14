@@ -16,7 +16,7 @@ class EMailClient : public QObject
 public:
     EMailClient();
     virtual ~EMailClient();
-    bool sendEmail(User user);
+    bool sendEmail(User user, QString eMail);
 
     bool sendResetEMail();
 

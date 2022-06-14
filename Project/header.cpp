@@ -53,9 +53,14 @@ QString Krypter::decrypt(QByteArray buffer, int cipherLength)
     }
 
 
-    this->decrypt(buf, cipherLength, plainText);
+    int length = this->decrypt(buf, cipherLength, plainText);
 
-    QString message = QString::fromUtf8((char*)plainText);
+    QString message; //= QString::fromUtf8((char*)plainText);
+
+    for(int i = 0; i < length; i++)
+    {
+        message.append((QChar)plainText[i]);
+    }
 
 
     return message;
@@ -99,7 +104,7 @@ int Krypter::encrypt(unsigned char *text, int text_len, unsigned char *cipher)
 
 }
 
-void Krypter::decrypt(unsigned char *cipher, int cipher_len, unsigned char *text)
+int Krypter::decrypt(unsigned char *cipher, int cipher_len, unsigned char *text)
 {
 
     int len = 0;
@@ -115,20 +120,20 @@ void Krypter::decrypt(unsigned char *cipher, int cipher_len, unsigned char *text
     if(!ctx)
     {
         std::cout << "Decryption failed 1" << std::endl;
-        return;
+        return -1;
     }
 
     if(!EVP_DecryptInit_ex(ctx, EVP_aes_128_ecb(), NULL, key, NULL))
     {
         std::cout << "Decryption failed 2" << std::endl;
-        return;
+        return -1;
     }
 
 
     if(!EVP_DecryptUpdate(ctx, text, &len, cipher, cipher_len))
     {
         std::cout << "Decryption failed 3" << std::endl;
-        return;
+        return -1;
     }
 
 
@@ -140,12 +145,12 @@ void Krypter::decrypt(unsigned char *cipher, int cipher_len, unsigned char *text
     {
         std::cout << "Decryption failed 4" << std::endl;
         ERR_print_errors_fp(stderr);
-        return;
+        return -1;
     }
 
     text_len += len;
 
-
+    return text_len;
 }
 
 

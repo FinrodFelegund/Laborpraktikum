@@ -89,6 +89,7 @@ private:
     QTcpSocket *getSocket(long long socketDescriptor);
     void mapUserToSocket(long long socketDescriptor, int userID);
     int getUserIDFromSocketList(long long socketDescriptor);
+    QString fetchDBPassword();
 
 
 

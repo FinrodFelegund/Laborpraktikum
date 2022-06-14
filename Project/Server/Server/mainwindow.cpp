@@ -24,12 +24,40 @@ MainWindow::MainWindow(QWidget *parent)
         exit(EXIT_FAILURE);
     }
 
+    //-------------------------
+    // Einmal auskommentieren und laufen lassen. Erzeugt dann ein .ini File in dem das MySQL Passwort verschlüsselt steht, kann nach Erzeugung wieder auskommentiert werden
+    //-------------------------
+    /*QSettings settings("Laborpraktikum", "Project");
+    settings.beginGroup("Server");
+    settings.setValue("buffer", "\u0099\u0096çz-hèóßM<\u0018¹ÀFî");
+    settings.setValue("length", 16);
+    settings.endGroup();*/
+
     krypter = new Krypter;
     eMailClient = new EMailClient();
+    db.setUpDatabase(fetchDBPassword());
+
+}
+
+QString MainWindow::fetchDBPassword()
+{
 
 
+    QSettings settings("Laborpraktikum", "Project");
+    settings.beginGroup("Server");
+    QString buffer = settings.value("buffer").toString();
+    int length = settings.value("length").toInt();
+    settings.endGroup();
 
 
+    if(!buffer.isEmpty())
+       buffer = krypter->decrypt(buffer.toUtf8(), length);
+    else return "";
+
+    qDebug() << buffer;
+
+
+    return buffer;
 }
 
 MainWindow::~MainWindow()
@@ -267,23 +295,24 @@ void MainWindow::sendEmailToUserAndReturnStatus(int entityType, int cipherLength
     QString message = krypter->decrypt(buffer, cipherLength);
     QStringList list = message.split(",");
     list.removeLast();
-    User user;
-    user.setPropertiesAsEntity(list);
-    QString userCredential = getPasswordFromUser(user);
-    user.setPassword(userCredential);
-    int retVal = 0;
+    User userUnencrypted;
+    qDebug() << list;
+    userUnencrypted.setPropertiesAsEntity(list);
+
+    QString eMailEncrypted = db.getEMailFromUser(userUnencrypted);
+    qDebug() << eMailEncrypted;
 
     //if(!userCredential.isEmpty())
 
-    retVal = eMailClient->sendEmail(user);
+    int retVal = eMailClient->sendEmail(userUnencrypted, eMailEncrypted);
 
-    user.setUID(QString::number(retVal));
+    userUnencrypted.setUID(QString::number(retVal));
 
 
     list.clear();
-    list.append(user.getUID());
-    list.append(user.getEmail());
-    list.append(user.getPassword());
+    list.append(userUnencrypted.getUID());
+    list.append(userUnencrypted.getEmail());
+    list.append(userUnencrypted.getPassword());
 
     QByteArray header;
     header.append(QString::number(MessageHeader::passwortRequest).toUtf8() + ",");

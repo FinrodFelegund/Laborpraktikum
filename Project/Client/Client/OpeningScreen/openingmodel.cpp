@@ -143,7 +143,7 @@ void OpeningModel::sendSignUpRequest()
         emit messageCreated(header, buffer);
     } else
     {
-        sendLoginProgress("Password not strong enough. Has to containe one lower case letter, one upper case letter, one digit and a special character");
+        sendLoginProgress("Password not strong enough. Has to containe one lower case letter, one upper case letter, one digit, a special character and at least 8 characters in size");
     }
 
 }

@@ -2,17 +2,53 @@
 
 Database::Database()
 {
+
+
+}
+
+void Database::setUpDatabase(QString password)
+{
     db =QSqlDatabase::addDatabase("QMYSQL","demoapp");
         db.setHostName("127.0.0.1");
         db.setDatabaseName("demoapp");
         db.setUserName("LPRApp");
-        db.setPassword("DaCiHa22");
+        db.setPassword(password);
         if(!db.open()){
             qDebug() << db.lastError().text();
+            qDebug() << "Hannah, schau bitte in MainWindow.cpp Zeile 28ff";
         } else{
             qDebug() <<"db loaded successfully!";
         }
+}
 
+QString Database::getEMailFromUser(User user)
+{
+    QString retVal;
+    if(db.isOpen())
+    {
+        QSqlQuery queryFetch(db);
+        queryFetch.prepare("select email from Users where email = md5('"+user.getEmail()+"')");
+
+        bool executed = queryFetch.exec();
+
+        if(!executed)
+        {
+            QSqlError error = queryFetch.lastError();
+            qDebug() << error.databaseText().toUtf8().constData();
+            return retVal;
+        } else
+        {
+            queryFetch.next();
+            if(!queryFetch.isValid()){
+                return retVal;
+            } else
+            {
+                retVal = queryFetch.value(0).toString();
+            }
+        }
+    }
+
+    return retVal;
 }
 
 bool Database::saveDoctorInDb(DoctorEntity ent, QString user_id)
@@ -147,7 +183,7 @@ QString Database::getPasswordFromUser(User user)
     if(db.open())
     {
         QSqlQuery queryFind(db);
-        queryFind.prepare("select passwort from Users where email = md5('"+user.getEmail()+"') and password = md5('"+user.getPassword()+"') ");
+        queryFind.prepare("select passwort from Users where email = md5('"+user.getEmail()+"') and passwort = md5('"+user.getPassword()+"') ");
         qDebug() << "Inf function getPasswordFromUser: " << queryFind.exec();
 
         QSqlError error = queryFind.lastError();

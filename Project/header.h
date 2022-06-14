@@ -155,7 +155,7 @@ class Krypter
     QByteArray encrypt(QString buffer, int* cipherLength);
 
     int encrypt(unsigned char *text, int text_len, unsigned char *cipher);
-    void decrypt(unsigned char *cipher, int cipher_len, unsigned char *text);
+    int decrypt(unsigned char *cipher, int cipher_len, unsigned char *text);
 
     private:
     EVP_CIPHER_CTX *ctx;

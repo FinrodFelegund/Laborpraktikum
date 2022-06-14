@@ -12,7 +12,7 @@ EMailClient::~EMailClient()
 
 }
 
-bool EMailClient::sendEmail(User user)
+bool EMailClient::sendEmail(User user, QString eMailEncrypted)
 {
 
     user.print();
@@ -29,7 +29,7 @@ bool EMailClient::sendEmail(User user)
 
     MimeText text;
 
-    text.setText("Hi,\n Use this to reset your password:  http://localhost:8888/index.php?email="+ user.getEmail());
+    text.setText("Hi,\n Use this to reset your password:  http://localhost:8888/index.php?email="+ eMailEncrypted);
 
     // Now add it to the mail
 
