@@ -8,6 +8,8 @@ Appointment::Appointment(QWidget *parent) :
     ui(new Ui::Appointment)
 {
     ui->setupUi(this);
+
+    ui->title->maxLength();
 }
 
 Appointment::~Appointment()

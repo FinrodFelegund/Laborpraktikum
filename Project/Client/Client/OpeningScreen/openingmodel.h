@@ -29,6 +29,7 @@ public slots:
     void sendLoginRequest();
     void sendSignUpRequest();
     void sendPasswordRequest();
+    bool checkForStrongPassword(QString passowrd);
 
 
 private:

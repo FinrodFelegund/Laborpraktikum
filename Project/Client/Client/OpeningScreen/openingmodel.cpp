@@ -127,15 +127,25 @@ void OpeningModel::sendSignUpRequest()
 {
     signupGui2Model();
 
-    QByteArray header;
-    int messageType = MessageHeader::signUpRequest;
-    int entityType = MessageHeader::UserEnt;
-    header.prepend(QString::number(entityType).toUtf8() + ",");
-    header.prepend(QString::number(messageType).toUtf8() + ",");
+    QString password = m_user->getPassword();
+    bool ok = checkForStrongPassword(password);
 
-    QString buffer = m_user->getPropertiesAsString();
+    if(ok)
+    {
+        QByteArray header;
+        int messageType = MessageHeader::signUpRequest;
+        int entityType = MessageHeader::UserEnt;
+        header.prepend(QString::number(entityType).toUtf8() + ",");
+        header.prepend(QString::number(messageType).toUtf8() + ",");
 
-    emit messageCreated(header, buffer);
+        QString buffer = m_user->getPropertiesAsString();
+
+        emit messageCreated(header, buffer);
+    } else
+    {
+        sendLoginProgress("Password not strong enough. Has to containe one lower case letter, one upper case letter, one digit and a special character");
+    }
+
 }
 
 void OpeningModel::sendPasswordRequest()
@@ -162,5 +172,38 @@ void OpeningModel::sendPasswordRequest()
         emit sendLoginProgress("Please enter a valid EMail Adresse");
     }
 
+}
+
+bool OpeningModel::checkForStrongPassword(QString password)
+{
+    std::string buf = password.toStdString();
+    int n = buf.size();
+
+    if(n < 9)
+        return false;
+
+    bool hasLower = false, hasUpper = false, hasDigit = false, hasSpecial = false;
+
+    std::string normalChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 ";
+
+    for(int i = 0; i < n; i++)
+    {
+        if(islower(buf[i]))
+            hasLower = true;
+        if(isupper(buf[i]))
+            hasUpper = true;
+        if(isdigit(buf[i]))
+            hasDigit = true;
+        const unsigned long special = buf.find_first_not_of(normalChars);
+        if(special != std::string::npos)
+            hasSpecial = true;
+
+    }
+
+
+    if(hasLower && hasUpper && hasDigit && hasSpecial)
+        return true;
+
+    return false;
 }
 
