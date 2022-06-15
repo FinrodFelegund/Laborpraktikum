@@ -9,7 +9,7 @@ OpeningModel::OpeningModel()
 
 OpeningModel::~OpeningModel()
 {
-
+    delete m_user;
 }
 
 

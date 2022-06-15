@@ -5,10 +5,12 @@
 Client::Client()
 {
 
+    m_timer = new QTimer(this);
     m_clientSocket = new QTcpSocket();
     connect(m_clientSocket, &QTcpSocket::readyRead, this, &Client::readSocket);
-    connect(m_clientSocket, &QTcpSocket::disconnected, this, &Client::discardSocket);
+    //connect(m_clientSocket, &QTcpSocket::disconnected, this, &Client::discardSocket);
     connect(m_clientSocket, &QAbstractSocket::errorOccurred, this, &Client::displayError);
+    connect(m_clientSocket, &QTcpSocket::disconnected, this, &Client::attemtingToRecconect);
 
     m_clientSocket->connectToHost(QHostAddress::LocalHost,8080);
 
@@ -33,8 +35,57 @@ Client::~Client()
     if(krypter)
         delete krypter;
 
+
 }
 
+void Client::attemtingToRecconect()
+{
+
+    if(m_timeout)
+    {
+
+        connect(m_timer, &QTimer::timeout, this, &Client::reconnectingToServer);
+        m_timer->start(1000);
+    }
+}
+
+void Client::endTimer()
+{
+    m_timer->stop();
+}
+
+void Client::reconnectingToServer()
+{
+    m_clientSocket->connectToHost(QHostAddress::LocalHost, 8080);
+    if(m_clientSocket->waitForConnected())
+    {
+            qDebug() << "reconnected";
+            this->endTimer();
+            emit sendProgress("Reconnecting successful");
+            m_timeout = true;
+            m_Time = 0;
+    } else
+    {
+        qDebug() << "reconnecting";
+        m_Time++;
+        emit sendProgress("Trying to reconnect to Server");
+        if(m_Time  == 20) //Time is over
+        {
+            m_Time = 0;
+            m_timer->stop();
+            QMessageBox box;
+            box.setText("Connecting was unsuccessful. Please restart the application to a differeent time.");
+            box.exec();
+            emit closeApplication();
+        }
+    }
+}
+
+void Client::endApplication()
+{
+    this->discardSocket();
+    m_timeout = false;
+}
 
 void Client::discardSocket()
 {

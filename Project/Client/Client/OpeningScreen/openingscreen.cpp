@@ -23,6 +23,7 @@ OpeningScreen::OpeningScreen(QWidget *parent) :
 OpeningScreen::~OpeningScreen()
 {
     delete ui;
+
 }
 
 void OpeningScreen::changeToSignUp()

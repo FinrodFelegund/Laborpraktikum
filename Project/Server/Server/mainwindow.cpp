@@ -45,6 +45,7 @@ QString MainWindow::fetchDBPassword()
 
     QSettings settings("Laborpraktikum", "Project");
     settings.beginGroup("Server");
+    qDebug() << settings.fileName();
     QString buffer = settings.value("buffer").toString();
     int length = settings.value("length").toInt();
     settings.endGroup();

@@ -15,6 +15,7 @@
 #include "appointmenttimeline.h"
 #include "doctoroverview.h"
 #include "applicationmodel.h"
+#include <QCloseEvent>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -29,9 +30,13 @@ public:
     ~MainWindow();
     void showProgress(QString progress);
     void showMainWindows();
+    void closeEvent(QCloseEvent *event);
+
+
+
 
 private slots:
-
+    void closeApplication();
     void on_reportButton_clicked();
 
     void on_appointmentButton_clicked();
@@ -45,6 +50,10 @@ private slots:
     void on_logoutButton_clicked();
 
     void returnToLogin();
+
+signals:
+    void closeSignalToClient();
+    void destroyed(QObject *obj = Q_NULLPTR);
 
 private:
     Ui::MainWindow *ui;

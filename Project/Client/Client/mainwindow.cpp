@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QObject>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -7,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-
+    //setAttribute(Qt::WA_DeleteOnClose);
     m_appointment = new Appointment();
     m_reportScreen = new ReportScreen();
     m_doctors = new Doctors();
@@ -51,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(client, &Client::pendingLogoutRequest, m_applicationModel, &ApplicationModel::receiveMessage);
     connect(m_applicationModel, &ApplicationModel::sendApplicationProgress, this, &MainWindow::showProgress);
     connect(m_applicationModel, &ApplicationModel::logoutUser, this, &MainWindow::returnToLogin);
+    connect(this, &MainWindow::closeSignalToClient, client, &Client::endApplication);
+    connect(client, &Client::sendProgress, this, &MainWindow::showProgress);
+    connect(client, &Client::closeApplication, this, &MainWindow::closeApplication);
 
         connect(m_openingModel, &OpeningModel::showMainWindows, this, [this](){
             showMainWindows();
@@ -78,6 +82,11 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
 
+}
+
+void MainWindow::closeApplication()
+{
+    QApplication::quit();
 }
 
 void MainWindow::on_appointmentButton_clicked()
@@ -141,5 +150,12 @@ void MainWindow::returnToLogin()
     ui->logoutButton->hide();
 
       ui->stackedWidget->setCurrentWidget(m_openingScreen);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    emit closeSignalToClient();
+
+    event->accept();
 }
 
