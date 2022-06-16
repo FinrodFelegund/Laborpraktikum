@@ -2,8 +2,9 @@
 #define APPOINTMENTTIMELINE_H
 
 #include <QWidget>
-#include "../../header.h"
+//#include "../../header.h"
 
+class AppointmentEntity;
 namespace Ui {
 class AppointmentTimeline;
 }

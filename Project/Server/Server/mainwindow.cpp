@@ -473,37 +473,6 @@ int MainWindow::createEntityAndSafeToDatabase(int entityType, int cipherLength, 
     return result;
 }
 
-void MainWindow::returnEntityFromDatabaseWithGivenUserID(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor)
-{
-//    QString message = krypter->decrypt(buffer, cipherLength);
-//    QStringList list = message.split(",");
-
-//    QTcpSocket *receiver = getSocket(socketDescriptor);
-
-//    switch(entityType)
-//    {
-//        case MessageHeader::AppointmentEnt:
-//        {
-//            //1. get all the appointments from database to fill them up in a calendar and send them back via socket; let this be a vector of appointments
-//            QString userID = list[0];
-//            std::vector<std::shared_ptr<Entity>> appointments = selectAppointmentsFromDatabase(userID);
-//            //2. send them back via Socket
-//            sendMessage(receiver, appointments, FromServerToClient::Appointments);
-//            break;
-//        }
-
-//        case MessageHeader::DoctorEnt:
-//        {
-//            //1. get a specific doctor back from database
-//            //2. send it back via Socket
-//        }
-
-
-
-//    }
-
-}
-
 void MainWindow::returnMessage(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor)
 {
     QString message = krypter->decrypt(buffer, cipherLength);

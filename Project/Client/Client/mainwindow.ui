@@ -41,13 +41,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="reportButton">
-        <property name="text">
-         <string>Report</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="docButton">
         <property name="text">
          <string>Arzt</string>
@@ -101,7 +94,7 @@
      <x>0</x>
      <y>0</y>
      <width>802</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
   </widget>

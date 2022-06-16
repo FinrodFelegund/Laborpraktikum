@@ -210,7 +210,7 @@ void Client::processNewMessage(QString header, QByteArray buffer)
             {
                 QString buf = krypter->decrypt(buffer, cipherLength);
                 qDebug() << "0 : error, 1: success; " << buf;
-                emit pendingLogoutRequest(buf, messageType);
+                emit pendingLogoutRequest(buf);
                 break;
             }
 
@@ -243,9 +243,6 @@ void Client::processNewMessage(QString header, QByteArray buffer)
     case MessageHeader::AppointmentNotSaved:
         QMessageBox::warning(nullptr,"Termin wurde nicht gespeichert!","Der Termin konnte nicht in der Datenbank gespeichert werden.");
         break;
-
-
-
     }
 }
 

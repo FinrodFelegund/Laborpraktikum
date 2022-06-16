@@ -6,14 +6,9 @@
 #include <QMessageBox>
 #include <QAbstractSocket>
 #include <QDebug>
-#include "appointment.h"
-#include "reportscreen.h"
 #include "client.h"
-#include "doctors.h"
 #include "OpeningScreen/openingscreen.h"
 #include "OpeningScreen/openingmodel.h"
-#include "appointmenttimeline.h"
-#include "doctoroverview.h"
 #include "applicationmodel.h"
 #include <QCloseEvent>
 
@@ -32,12 +27,8 @@ public:
     void showMainWindows();
     void closeEvent(QCloseEvent *event);
 
-
-
-
 private slots:
     void closeApplication();
-    void on_reportButton_clicked();
 
     void on_appointmentButton_clicked();
 
@@ -59,7 +50,6 @@ private:
     Ui::MainWindow *ui;
     Client *client;
     Appointment *m_appointment;
-    ReportScreen *m_reportScreen;
     Doctors *m_doctors;
     OpeningModel *m_openingModel;
     ApplicationModel *m_applicationModel;

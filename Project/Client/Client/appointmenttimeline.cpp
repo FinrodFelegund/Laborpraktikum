@@ -1,6 +1,7 @@
 #include "appointmenttimeline.h"
 #include "ui_appointmenttimeline.h"
 #include <QStringList>
+#include "../../header.h"
 
 AppointmentTimeline::AppointmentTimeline(QWidget *parent) :
     QWidget(parent),

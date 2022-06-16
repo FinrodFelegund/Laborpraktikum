@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QObject>
+#include "../../header.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -10,7 +11,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     //setAttribute(Qt::WA_DeleteOnClose);
     m_appointment = new Appointment();
-    m_reportScreen = new ReportScreen();
     m_doctors = new Doctors();
     m_openingScreen = new OpeningScreen();
     m_openingModel = new OpeningModel();
@@ -26,30 +26,35 @@ MainWindow::MainWindow(QWidget *parent)
     m_openingModel->setGui(m_openingScreen);
     m_openingModel->connectGui();
 
+    m_applicationModel->setAppointment(m_appointment);
+    m_applicationModel->setAppointment_timeline(m_appointment_timeline);
+    m_applicationModel->setDoctors(m_doctors);
+    m_applicationModel->setDoctor_overview(m_doctor_overview);
+
+    m_applicationModel->connectGui();
+
 
     ui->stackedWidget->insertWidget(0, m_openingScreen);
     ui->stackedWidget->insertWidget(1, m_appointment);
-    ui->stackedWidget->insertWidget(2, m_reportScreen);
-    ui->stackedWidget->insertWidget(3,m_doctors);
-    ui->stackedWidget->insertWidget(4,m_appointment_timeline);
-    ui->stackedWidget->insertWidget(5,m_doctor_overview);
+    ui->stackedWidget->insertWidget(2,m_doctors);
+    ui->stackedWidget->insertWidget(3,m_appointment_timeline);
+    ui->stackedWidget->insertWidget(4,m_doctor_overview);
 
     ui->stackedWidget->setCurrentWidget(m_openingScreen);
 
     client = new Client();
     qDebug() << "client created";
-    connect(m_appointment, &Appointment::messageCreated, client, &Client::sendMessage);
-    //connect(m_reportScreen, &ReportScreen::messageCreated, client, &Client::sendMessage);
-    connect(m_doctors, &Doctors::messageCreated, client, &Client::sendMessage);
+    connect(m_applicationModel, &ApplicationModel::sendMessage, client, &Client::sendMessage);
+    connect(m_applicationModel, &ApplicationModel::sendMessage, client, &Client::sendMessage);
     connect(m_openingModel, &OpeningModel::messageCreated, client, &Client::sendMessage);
     connect(client, &Client::pendingOpeningRequest, m_openingModel, &OpeningModel::receiveMessage);
     connect(m_openingModel, &OpeningModel::sendLoginProgress, this, &MainWindow::showProgress);
     connect(m_openingModel, &OpeningModel::currentUser, client, &Client::setCurrentUser);
     connect(m_openingModel, &OpeningModel::showMainWindows, this, &MainWindow::showMainWindows);
-    connect(client,&Client::returnAppointments,m_appointment_timeline,&AppointmentTimeline::setAppointmentVector);
-    connect(client,&Client::returnDoctors,m_doctor_overview,&DoctorOverview::setDoctorText);
-    connect(m_doctor_overview, &DoctorOverview::getAllDoctors,client, &Client::sendMessage);
-    connect(client, &Client::pendingLogoutRequest, m_applicationModel, &ApplicationModel::receiveMessage);
+    connect(client,&Client::returnAppointments,m_applicationModel,&ApplicationModel::getReturnedAppointments);
+    connect(client,&Client::returnDoctors,m_applicationModel,&ApplicationModel::getReturnedDoctors);
+    connect(m_applicationModel, &ApplicationModel::sendMessage,client, &Client::sendMessage);
+    connect(client, &Client::pendingLogoutRequest, m_applicationModel, &ApplicationModel::logoutRequest);
     connect(m_applicationModel, &ApplicationModel::sendApplicationProgress, this, &MainWindow::showProgress);
     connect(m_applicationModel, &ApplicationModel::logoutUser, this, &MainWindow::returnToLogin);
     connect(this, &MainWindow::closeSignalToClient, client, &Client::endApplication);
@@ -70,7 +75,6 @@ MainWindow::MainWindow(QWidget *parent)
         });
 
     ui->appointmentButton->hide();
-    ui->reportButton->hide();
     ui->docButton->hide();
     ui->appTimelineButton->hide();
     ui->allDocsButton->hide();
@@ -95,11 +99,6 @@ void MainWindow::on_appointmentButton_clicked()
     ui->stackedWidget->setCurrentWidget(m_appointment);
 }
 
-void MainWindow::on_reportButton_clicked()
-{
-    ui->stackedWidget->setCurrentWidget(m_reportScreen);
-}
-
 void MainWindow::on_docButton_clicked()
 {
     m_doctors->resetPage();
@@ -119,7 +118,6 @@ void MainWindow::showProgress(QString progress)
 void MainWindow::showMainWindows()
 {
     ui->appointmentButton->show();
-    ui->reportButton->show();
     ui->docButton->show();
     ui->allDocsButton->show();
     ui->appTimelineButton->show();
@@ -143,7 +141,6 @@ void MainWindow::on_logoutButton_clicked()
 void MainWindow::returnToLogin()
 {
     ui->appointmentButton->hide();
-    ui->reportButton->hide();
     ui->docButton->hide();
     ui->appTimelineButton->hide();
     ui->allDocsButton->hide();
