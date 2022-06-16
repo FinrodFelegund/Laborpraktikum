@@ -19,15 +19,17 @@ public:
 
 public slots:
     void setAppointmentVector(QString appointments);
+    void reciveDocMap(std::map<int, QString> map);
+
 signals:
     void getAllAppointments();
-
 
 private:
     void showList();
 
     Ui::AppointmentTimeline *ui;
     std::vector<std::shared_ptr<AppointmentEntity>> appEntVector;
+    std::map<int, QString> docMap;
 };
 
 #endif // APPOINTMENTTIMELINE_H

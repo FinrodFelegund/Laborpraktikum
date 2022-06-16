@@ -22,7 +22,7 @@ void DoctorOverview::setDoctorText(QString doctors)
     showDocTable(doctors);
 }
 
-void DoctorOverview::on_loadDocsButton_clicked()
+void DoctorOverview::updatePage()
 {
     QByteArray header;
     int messageType = MessageHeader::returnMessage;
@@ -65,6 +65,7 @@ void DoctorOverview::showDocTable(QString doctors)
         ui->docTable->setItem(i,3,new QTableWidgetItem(currDoc->getPostalCode()));
         ui->docTable->setItem(i,4,new QTableWidgetItem(currDoc->getCity()));
         ui->docTable->setItem(i,5,new QTableWidgetItem(currDoc->getPhoneNumber()));
+        emit docInfo(currDoc->getId().toInt(),currDoc->getName());
         i++;
     }
 
@@ -72,5 +73,7 @@ void DoctorOverview::showDocTable(QString doctors)
 
     ui->docTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->docTable->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
+
+    emit allDocsLoaded();
 }
 

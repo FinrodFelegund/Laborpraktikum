@@ -42,7 +42,7 @@ void Appointment::createAppointmentMessage()
     header.prepend(QString::number(messageType).toUtf8() + ",");
 
     emit messageCreated(header, appointment.getPropertiesAsString());
-
+    resetPage();
 
 }
 

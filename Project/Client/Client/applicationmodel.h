@@ -37,6 +37,9 @@ public slots:
     void getReturnedDoctors(QString doctors);
     void getReturnedAppointments(QString appointments);
 
+private slots:
+    void addDoc(int doc_id, QString name);
+    void prepareAppointmentEntMessage();
 
 private:
     Appointment *m_appointment;
@@ -44,6 +47,8 @@ private:
 
     Doctors *m_doctors;
     DoctorOverview * m_doctor_overview;
+
+    std::map<int, QString> docMap;
 
 };
 

@@ -359,3 +359,8 @@ QString DoctorEntityId::getPropertiesAsString()
 {
     return doctor_id + "," + DoctorEntity::getPropertiesAsString();
 }
+
+QString DoctorEntityId::getId()
+{
+    return doctor_id;
+}

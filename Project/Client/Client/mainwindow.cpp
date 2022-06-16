@@ -45,7 +45,6 @@ MainWindow::MainWindow(QWidget *parent)
     client = new Client();
     qDebug() << "client created";
     connect(m_applicationModel, &ApplicationModel::sendMessage, client, &Client::sendMessage);
-    connect(m_applicationModel, &ApplicationModel::sendMessage, client, &Client::sendMessage);
     connect(m_openingModel, &OpeningModel::messageCreated, client, &Client::sendMessage);
     connect(client, &Client::pendingOpeningRequest, m_openingModel, &OpeningModel::receiveMessage);
     connect(m_openingModel, &OpeningModel::sendLoginProgress, this, &MainWindow::showProgress);
@@ -60,19 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, &MainWindow::closeSignalToClient, client, &Client::endApplication);
     connect(client, &Client::sendProgress, this, &MainWindow::showProgress);
     connect(client, &Client::closeApplication, this, &MainWindow::closeApplication);
-
-        connect(m_openingModel, &OpeningModel::showMainWindows, this, [this](){
-            showMainWindows();
-
-            QByteArray header;
-            int messageType = MessageHeader::returnMessage;
-            int messageEntity = MessageHeader::AppointmentEnt;
-
-            header.prepend(QString::number(messageEntity).toUtf8() + ",");
-            header.prepend(QString::number(messageType).toUtf8() + ",");
-
-            client->sendMessage(header,"");
-        });
+    connect(m_openingModel, &OpeningModel::showMainWindows, this, &MainWindow::showMainWindows);
 
     ui->appointmentButton->hide();
     ui->docButton->hide();
@@ -122,6 +109,8 @@ void MainWindow::showMainWindows()
     ui->allDocsButton->show();
     ui->appTimelineButton->show();
     ui->logoutButton->show();
+
+    m_doctor_overview->updatePage();
     on_appTimelineButton_clicked();
 }
 
@@ -129,6 +118,7 @@ void MainWindow::showMainWindows()
 
 void MainWindow::on_allDocsButton_clicked()
 {
+    m_doctor_overview->updatePage();
     ui->stackedWidget->setCurrentWidget(m_doctor_overview);
 }
 
@@ -146,7 +136,7 @@ void MainWindow::returnToLogin()
     ui->allDocsButton->hide();
     ui->logoutButton->hide();
 
-      ui->stackedWidget->setCurrentWidget(m_openingScreen);
+    ui->stackedWidget->setCurrentWidget(m_openingScreen);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

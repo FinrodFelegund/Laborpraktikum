@@ -41,6 +41,12 @@ void AppointmentTimeline::setAppointmentVector(QString appointments)
     showList();
 }
 
+void AppointmentTimeline::reciveDocMap(std::map<int, QString> map)
+{
+    docMap=map;
+    emit getAllAppointments();
+}
+
 void AppointmentTimeline::showList()
 {
     QStringList header;
@@ -53,7 +59,7 @@ void AppointmentTimeline::showList()
         ui->allAppointments->setItem(i,0,new QTableWidgetItem(currApp->getDate()));
         ui->allAppointments->setItem(i,1,new QTableWidgetItem(currApp->getTime()));
         ui->allAppointments->setItem(i,2,new QTableWidgetItem(currApp->getTitle()));
-        ui->allAppointments->setItem(i,3,new QTableWidgetItem(currApp->getDoctorID()));
+        ui->allAppointments->setItem(i,3,new QTableWidgetItem(docMap[currApp->getDoctorID().toInt()]));
         ui->allAppointments->setItem(i,4,new QTableWidgetItem(currApp->getText()));
         i++;
     }

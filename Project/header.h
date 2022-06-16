@@ -139,6 +139,7 @@ public:
     void setPropertiesAsEntity(QStringList list);
     void print();
     QString getPropertiesAsString();
+    QString getId();
 
 private:
     QString doctor_id;

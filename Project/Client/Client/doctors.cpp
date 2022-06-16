@@ -47,6 +47,7 @@ void Doctors::createDoctorMessage()
     header.prepend(QString::number(messageType).toUtf8() + ",");
 
     emit messageCreated(header, doctor.getPropertiesAsString());
+    resetPage();
 }
 
 void Doctors::on_saveButton_clicked()

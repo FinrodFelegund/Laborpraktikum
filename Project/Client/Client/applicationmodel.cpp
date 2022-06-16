@@ -31,6 +31,23 @@ void ApplicationModel::getReturnedAppointments(QString appointments)
     m_appointment_timeline->setAppointmentVector(appointments);
 }
 
+void ApplicationModel::addDoc(int doc_id, QString name)
+{
+    docMap[doc_id]=name;
+}
+
+void ApplicationModel::prepareAppointmentEntMessage()
+{
+    QByteArray header;
+    int messageType = MessageHeader::returnMessage;
+    int messageEntity = MessageHeader::AppointmentEnt;
+
+    header.prepend(QString::number(messageEntity).toUtf8() + ",");
+    header.prepend(QString::number(messageType).toUtf8() + ",");
+
+    emit sendMessage(header,"");
+}
+
 DoctorOverview *ApplicationModel::doctor_overview() const
 {
     return m_doctor_overview;
@@ -46,7 +63,11 @@ void ApplicationModel::connectGui()
     connect(m_appointment, &Appointment::messageCreated, this, &ApplicationModel::sendMessage);
     connect(m_doctors, &Doctors::messageCreated, this, &ApplicationModel::sendMessage);
     connect(m_doctor_overview, &DoctorOverview::getAllDoctors,this, &ApplicationModel::sendMessage);
-
+    connect(m_doctor_overview, &DoctorOverview::docInfo,this,&ApplicationModel::addDoc);
+    connect(m_doctor_overview, &DoctorOverview::allDocsLoaded,this, [this](){
+        m_appointment_timeline->reciveDocMap(docMap);
+    });
+    connect(m_appointment_timeline, &AppointmentTimeline::getAllAppointments,this, &ApplicationModel::prepareAppointmentEntMessage);
 }
 
 Doctors *ApplicationModel::doctors() const

@@ -18,11 +18,11 @@ public:
 
 public slots:
     void setDoctorText(QString doctors);
+    void updatePage();
 signals:
     void getAllDoctors(QByteArray header, QString message);
-
-private slots:
-    void on_loadDocsButton_clicked();
+    void docInfo(int doc_id, QString name);
+    void allDocsLoaded();
 
 private:
     void showDocTable(QString doctors);
