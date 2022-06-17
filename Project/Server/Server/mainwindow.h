@@ -85,6 +85,8 @@ private:
     void signUpUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);
     void sendEmailToUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);
     void logoutUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);
+    void deleteUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);
+    void returnMessageArray(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);
 
     QTcpSocket *getSocket(long long socketDescriptor);
     void mapUserToSocket(long long socketDescriptor, int userID);

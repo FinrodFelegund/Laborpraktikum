@@ -36,7 +36,7 @@ void DoctorOverview::updatePage()
 
 void DoctorOverview::showDocTable(QString doctors)
 {
-
+    doctorMap.clear();
     std::vector<std::shared_ptr<DoctorEntityId>> docEntVector;
 
     QStringList allDoctors = doctors.split(";");
@@ -48,6 +48,9 @@ void DoctorOverview::showDocTable(QString doctors)
         std::shared_ptr<DoctorEntityId> docEnt=std::make_shared<DoctorEntityId>();
         docEnt->setPropertiesAsEntity(currDocList);
         docEntVector.push_back(docEnt);
+        int docID = docEnt->getId().toInt();
+        QString name = docEnt->getName();
+        doctorMap.push_back(std::make_pair(docID, name));
         }
     }
 
@@ -74,6 +77,9 @@ void DoctorOverview::showDocTable(QString doctors)
     ui->docTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->docTable->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
 
-    emit allDocsLoaded();
+    emit allDocsLoaded(doctorMap);
 }
+
+
+
 

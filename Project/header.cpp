@@ -163,6 +163,15 @@ void AppointmentEntity::setProperties(QString date, QString time, QString doctor
     this->text = text;
 }
 
+void AppointmentEntity::clear()
+{
+    date.clear();
+    time.clear();
+    doctorID.clear();
+    title.clear();
+    text.clear();
+}
+
 QString AppointmentEntity::getDate()
 {
     return date;
@@ -210,6 +219,12 @@ void AppointmentEntity::print()
     qDebug() << date << " " << time << " " << doctorID << " " << title << " " << text;
 }
 
+void AppointmentEntity::setDocId(QString docID)
+{
+    doctorID.clear();
+    doctorID = docID;
+}
+
 
 void DoctorEntity::setProperties(QString name, QString street, QString streetNumber, QString city, QString postalCode, QString phoneNumber)
 {
@@ -219,6 +234,16 @@ void DoctorEntity::setProperties(QString name, QString street, QString streetNum
     this->city = city;
     this->postalCode = postalCode;
     this->phoneNumber = phoneNumber;
+}
+
+void DoctorEntity::clear()
+{
+    name.clear();
+    street.clear();
+    streetNumber.clear();
+    city.clear();
+    postalCode.clear();
+    phoneNumber.clear();
 }
 
 QString DoctorEntity::getName()

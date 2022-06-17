@@ -42,6 +42,8 @@ private slots:
 
     void returnToLogin();
 
+    void on_deleteProfileButton_clicked();
+
 signals:
     void closeSignalToClient();
     void destroyed(QObject *obj = Q_NULLPTR);

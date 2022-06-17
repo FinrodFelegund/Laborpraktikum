@@ -25,6 +25,7 @@ Client::Client()
 
     m_user=new User();
     m_user->setProperties("0","NoEmail","NoPasswort");
+
 }
 
 Client::~Client()
@@ -83,8 +84,9 @@ void Client::reconnectingToServer()
 
 void Client::endApplication()
 {
+     m_timeout = false;
     this->discardSocket();
-    m_timeout = false;
+
 }
 
 void Client::discardSocket()
@@ -99,6 +101,7 @@ void Client::displayError(QAbstractSocket::SocketError socketError)
 {
     switch (socketError){
         case QAbstractSocket::RemoteHostClosedError:
+        qDebug() << "Remote Host closed connection";
         break;
 
         case QAbstractSocket::HostNotFoundError:
@@ -164,7 +167,10 @@ void Client::sendMessage(QByteArray header, QString message)
 
     //last entry of header consists of cipher length
     header.append(QString::number(length).toUtf8() + ",");
+     qDebug() << header;
     header.resize(128);
+
+
 
     messageToSend.prepend(header);
 
@@ -213,6 +219,13 @@ void Client::processNewMessage(QString header, QByteArray buffer)
                 emit pendingLogoutRequest(buf);
                 break;
             }
+            if(messageType == MessageHeader::deleteUserRequest)
+            {
+                QString buf = krypter->decrypt(buffer, cipherLength);
+                qDebug() << "0: error, 1: success, : " << buf;
+                emit pendingDeleteRequest(buf);
+                break;
+            }
 
         break;
     }
@@ -232,18 +245,52 @@ void Client::processNewMessage(QString header, QByteArray buffer)
         break;
     }
     case MessageHeader::DoctorSaved:
-      QMessageBox::information(nullptr, "Arzt wurde gespeichert!","Der Arzt wurde erfolgreich gespeichert.");
+    {
+        QMessageBox::information(nullptr, "Arzt wurde gespeichert!","Der Arzt wurde erfolgreich gespeichert.");
+        qDebug() << "what is going on here";
+        getDoctorsFromServer();
         break;
+    }
+
     case MessageHeader::DoctorNotSaved:
         QMessageBox::warning(nullptr,"Arzt wurde nicht gespeichert!","Der Arzt konnte nicht in der Datenbank gespeichert werden.");
+
         break;
     case MessageHeader::AppointmentSaved:
+    {
         QMessageBox::information(nullptr, "Termin wurde gespeichert!","Der Termin wurde erfolgreich gespeichert.");
+        getAppointmentsFromServer();
         break;
+    }
+
     case MessageHeader::AppointmentNotSaved:
         QMessageBox::warning(nullptr,"Termin wurde nicht gespeichert!","Der Termin konnte nicht in der Datenbank gespeichert werden.");
         break;
     }
+
+}
+
+void Client::getAppointmentsFromServer()
+{
+
+    qDebug() << "asking for Appointments";
+    QByteArray header;
+    header.append(QString::number(MessageHeader::returnMessageArray).toUtf8()+ ",");
+    header.append(QString::number(MessageHeader::AppointmentEnt).toUtf8() + ",");
+    QString buffer;
+    sendMessage(header, buffer);
+}
+
+void Client::getDoctorsFromServer()
+{
+
+    qDebug() << "asking For doctors";
+    QByteArray header;
+    header.append(QString::number(MessageHeader::returnMessageArray).toUtf8()+",");
+    header.append(QString::number(MessageHeader::DoctorEnt).toUtf8()+ ",");
+
+    QString buffer;
+    sendMessage(header, buffer);
 }
 
 void Client::sendLogoutRequest()
@@ -251,9 +298,9 @@ void Client::sendLogoutRequest()
     QByteArray header;
     header.append(QString::number(MessageHeader::logoutRequest).toUtf8() + ",");
     header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
-    header.append(QString::number(0).toUtf8() + ",");
+    //header.append(QString::number(0).toUtf8() + ",");
     QString buffer;
-
+    qDebug() << "sending logout request";
     sendMessage(header, buffer);
 }
 

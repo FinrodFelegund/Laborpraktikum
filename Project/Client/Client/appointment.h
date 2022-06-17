@@ -17,15 +17,25 @@ public:
     ~Appointment();
     void createAppointmentMessage();
     void resetPage();
+    QStringList getGuiInput();
+    void setDocMap(std::vector<std::pair<int, QString>>doctorMap);
+    void print();
 
 signals:
-    void messageCreated(QByteArray header, QString message);
+    void sendAppointmentEntity();
 
 private slots:
     void on_buttonSend_clicked();
 
 private:
     Ui::Appointment *ui;
+    QString date;
+    QString time;
+    QString doctorName;
+    QString title;
+    QString text;
+    int docId;
+    std::vector<std::pair<int, QString>> doctorMapInAppointment;
 };
 
 #endif // APPOINTMENT_H

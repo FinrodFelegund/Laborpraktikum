@@ -93,6 +93,11 @@ bool Database::saveAppointmentInDb(AppointmentEntity ent, QString user_id)
     if(user_id.toInt() > -1){
         if(db.open()){
 
+            qDebug() << "In database function save Appointment:";
+            ent.print();
+            qDebug() << " " << user_id;
+            qDebug();
+
             QSqlQuery queryInsert(db);
                         queryInsert.prepare("insert into appointments(appdate,apptime,title,notes,did,uid) values(?,?,?,?,?,?)");
                         queryInsert.bindValue(0,QDate::fromString(ent.getDate()));
@@ -105,7 +110,7 @@ bool Database::saveAppointmentInDb(AppointmentEntity ent, QString user_id)
                         bool executed = queryInsert.exec();
                         qDebug()<<executed;
                         QSqlError error= queryInsert.lastError();
-                        std::cout<<error.databaseText().toUtf8().constData();
+                        qDebug() <<error.databaseText().toUtf8().constData();
                         return executed;
         }
 
@@ -333,6 +338,32 @@ bool Database::selectDateTest()
             }
 
         }
+
+    return executed;
+}
+
+bool Database::deleteUser(int userID)
+{
+    bool executed = false;
+
+    if(db.open())
+    {
+        QSqlQuery queryDelete(db);
+        queryDelete.prepare("delete from Users where uid = ? ");
+        queryDelete.bindValue(0, userID);
+
+        executed = queryDelete.exec();
+
+        QSqlError error = queryDelete.lastError();
+        if(!executed)
+        {
+             qDebug() << error.databaseText().toUtf8().constData();
+             return executed;
+        } else {
+            return true;
+        }
+
+    }
 
     return executed;
 }

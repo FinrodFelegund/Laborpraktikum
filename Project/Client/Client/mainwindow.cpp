@@ -44,28 +44,33 @@ MainWindow::MainWindow(QWidget *parent)
 
     client = new Client();
     qDebug() << "client created";
-    connect(m_applicationModel, &ApplicationModel::sendMessage, client, &Client::sendMessage);
+
     connect(m_openingModel, &OpeningModel::messageCreated, client, &Client::sendMessage);
     connect(client, &Client::pendingOpeningRequest, m_openingModel, &OpeningModel::receiveMessage);
     connect(m_openingModel, &OpeningModel::sendLoginProgress, this, &MainWindow::showProgress);
     connect(m_openingModel, &OpeningModel::currentUser, client, &Client::setCurrentUser);
     connect(m_openingModel, &OpeningModel::showMainWindows, this, &MainWindow::showMainWindows);
-    connect(client,&Client::returnAppointments,m_applicationModel,&ApplicationModel::getReturnedAppointments);
-    connect(client,&Client::returnDoctors,m_applicationModel,&ApplicationModel::getReturnedDoctors);
-    connect(m_applicationModel, &ApplicationModel::sendMessage,client, &Client::sendMessage);
-    connect(client, &Client::pendingLogoutRequest, m_applicationModel, &ApplicationModel::logoutRequest);
-    connect(m_applicationModel, &ApplicationModel::sendApplicationProgress, this, &MainWindow::showProgress);
-    connect(m_applicationModel, &ApplicationModel::logoutUser, this, &MainWindow::returnToLogin);
+    connect(m_openingModel, &OpeningModel::showMainWindows, this, &MainWindow::showMainWindows);
     connect(this, &MainWindow::closeSignalToClient, client, &Client::endApplication);
     connect(client, &Client::sendProgress, this, &MainWindow::showProgress);
     connect(client, &Client::closeApplication, this, &MainWindow::closeApplication);
-    connect(m_openingModel, &OpeningModel::showMainWindows, this, &MainWindow::showMainWindows);
+
+
+     //connect(m_applicationModel, &ApplicationModel::getDoctorsFromServer, client, &Client::sendMessage);
+     connect(m_applicationModel, &ApplicationModel::sendMessage, client, &Client::sendMessage);
+     connect(m_applicationModel, &ApplicationModel::sendApplicationProgress, this, &MainWindow::showProgress);
+     connect(m_applicationModel, &ApplicationModel::logoutUser, this, &MainWindow::returnToLogin);
+     connect(client,&Client::returnAppointments,m_applicationModel,&ApplicationModel::getReturnedAppointments);
+     connect(client,&Client::returnDoctors,m_applicationModel,&ApplicationModel::getReturnedDoctors);
+     connect(client, &Client::pendingLogoutRequest, m_applicationModel, &ApplicationModel::logoutRequest);
+     connect(client, &Client::pendingDeleteRequest, m_applicationModel, &ApplicationModel::deleteRequest);
 
     ui->appointmentButton->hide();
     ui->docButton->hide();
     ui->appTimelineButton->hide();
     ui->allDocsButton->hide();
     ui->logoutButton->hide();
+    ui->deleteProfileButton->hide();
 
 
 }
@@ -104,14 +109,17 @@ void MainWindow::showProgress(QString progress)
 
 void MainWindow::showMainWindows()
 {
+    //client->getDoctorsFromServer();
     ui->appointmentButton->show();
     ui->docButton->show();
     ui->allDocsButton->show();
     ui->appTimelineButton->show();
     ui->logoutButton->show();
+    ui->deleteProfileButton->show();
 
-    m_doctor_overview->updatePage();
     on_appTimelineButton_clicked();
+
+    //client->getAppointmentsFromServer();
 }
 
 
@@ -135,6 +143,7 @@ void MainWindow::returnToLogin()
     ui->appTimelineButton->hide();
     ui->allDocsButton->hide();
     ui->logoutButton->hide();
+    ui->deleteProfileButton->hide();
 
     ui->stackedWidget->setCurrentWidget(m_openingScreen);
 }
@@ -144,5 +153,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
     emit closeSignalToClient();
 
     event->accept();
+}
+
+
+void MainWindow::on_deleteProfileButton_clicked()
+{
+    m_applicationModel->sendDeleteRequest();
 }
 

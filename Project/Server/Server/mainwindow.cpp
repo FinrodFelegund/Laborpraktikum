@@ -204,7 +204,7 @@ void MainWindow::displayMessage(QString header, QByteArray buffer, long long soc
 
 
 
-    //qDebug() << messageType << " " << entityType << " " << cipherLength;
+    qDebug() << messageType << " " << entityType << " " << cipherLength;
 
     buffer = buffer.mid(128);
 
@@ -212,15 +212,29 @@ void MainWindow::displayMessage(QString header, QByteArray buffer, long long soc
     switch(messageType)
     {
         case MessageHeader::saveMessage:
-        qDebug()<<"save Message - create Entity";
-        entityType=createEntityAndSafeToDatabase(entityType, cipherLength, buffer);
-        qDebug()<<"Entity created - answer: " + QString::number(entityType);
-        returnMessage(entityType,cipherLength,buffer,socketDescriptor);
-        break;
+        {
+            qDebug()<<"save Message - create Entity";
+            entityType=createEntityAndSafeToDatabase(entityType, cipherLength, buffer);
+            qDebug()<<"Entity created - answer: " + QString::number(entityType);
+            returnMessage(entityType,cipherLength,buffer,socketDescriptor);
+            break;
+        }
+
 
         case MessageHeader::returnMessage:
-        returnMessage(entityType, cipherLength, buffer, socketDescriptor);
-        break;
+        {
+            qDebug() << "returning Message";
+            returnMessage(entityType, cipherLength, buffer, socketDescriptor);
+            break;
+        }
+
+        case::MessageHeader::returnMessageArray:
+        {
+            qDebug() << "returning MessageArray";
+            returnMessageArray(entityType, cipherLength, buffer, socketDescriptor);
+            break;
+        }
+
 
         case MessageHeader::loginRequest:
         {
@@ -248,7 +262,14 @@ void MainWindow::displayMessage(QString header, QByteArray buffer, long long soc
         {
             qDebug() << "Logout Request received";
             logoutUserAndReturnStatus(entityType, cipherLength, buffer, socketDescriptor);
+            break;
+        }
 
+        case MessageHeader::deleteUserRequest:
+        {
+            qDebug() << "Delete user request received";
+            deleteUserAndReturnStatus(entityType, cipherLength, buffer, socketDescriptor);
+            break;
         }
 
         default:
@@ -256,6 +277,77 @@ void MainWindow::displayMessage(QString header, QByteArray buffer, long long soc
 
     }
 
+}
+
+void MainWindow::returnMessageArray(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor)
+{
+    QTcpSocket *receiver = getSocket(socketDescriptor);
+    int userID = getUserIDFromSocketList(socketDescriptor);
+
+    switch(entityType)
+    {
+        case MessageHeader::DoctorEnt:
+        {
+            std::vector<std::shared_ptr<Entity>> ents = db.selectDoctorsFromDatabase(QString::number(userID));
+
+
+            QByteArray header;
+            header.append(QString::number(MessageHeader::returnMessageArray).toUtf8()+ ",");
+            header.append(QString::number(MessageHeader::DoctorEnt).toUtf8()+ ",");
+
+            qDebug() << "sending doctors back";
+            sendMessage(receiver, ents, header);
+            break;
+        }
+
+        case MessageHeader::AppointmentEnt:
+        {
+            std::vector<std::shared_ptr<Entity>> ents = db.selectAppointmentsFromDatabase(QString::number(userID));
+            QByteArray header;
+            header.append(QString::number(MessageHeader::returnMessageArray).toUtf8()+",");
+            header.append(QString::number(MessageHeader::AppointmentEnt).toUtf8()+",");
+
+            qDebug() << "sending appointments back";
+            sendMessage(receiver, ents, header);
+            break;
+        }
+
+        default:
+        break;
+    }
+}
+
+void MainWindow::deleteUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor)
+{
+    QTcpSocket *receiver = getSocket(socketDescriptor);
+    int userID = getUserIDFromSocketList(socketDescriptor);
+
+    bool retVal = db.deleteUser(userID);
+
+
+    std::vector<std::shared_ptr<Entity>> ents;
+    ents.push_back(std::make_shared<User>());
+    QStringList list;
+    list.append(QString::number(retVal));
+    list.append(" ");
+    list.append(" ");
+    ents[0]->setPropertiesAsEntity(list);
+
+    QByteArray header;
+
+    if(retVal)
+    {
+        mapUserToSocket(socketDescriptor, 0);
+        header.append(QString::number(MessageHeader::deleteUserRequest).toUtf8() + ",");
+        header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
+    } else
+    {
+        header.append(QString::number(MessageHeader::deleteUserRequest).toUtf8() + ",");
+        header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
+    }
+
+    qDebug() << "Delete Request sending back";
+    sendMessage(receiver, ents, header);
 }
 
 void MainWindow::logoutUserAndReturnStatus(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor)
@@ -274,7 +366,7 @@ void MainWindow::logoutUserAndReturnStatus(int entityType, int cipherLength, QBy
 
     QByteArray header;
     if(retVal){
-        mapUserToSocket(socketDescriptor, 0);  // 0 means no User loged in under this socket, but socket still connected to server
+        mapUserToSocket(socketDescriptor, 0);  // 0 means no User logged in under this socket, but socket still connected to server
         header.append(QString::number(MessageHeader::logoutRequest).toUtf8() + ",");
         header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
     } else

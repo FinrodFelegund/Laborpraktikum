@@ -16,15 +16,25 @@ public:
     explicit Doctors(QWidget *parent = nullptr);
     ~Doctors();
     void resetPage();
+    QStringList getGuiInput();
 
 signals:
-    void messageCreated(QByteArray header, QString message);
+    void sendDoctorEntity();
 
 private slots:
     void on_saveButton_clicked();
 
+public:
+
+
 private:
-    void createDoctorMessage();
+
+    QString name;
+    QString street;
+    QString streetNumber;
+    QString city;
+    QString postalCode;
+    QString phoneNumber;
 
     Ui::Doctors *ui;
 };

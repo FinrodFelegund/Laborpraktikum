@@ -9,7 +9,7 @@ Appointment::Appointment(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->title->maxLength();
+
 }
 
 Appointment::~Appointment()
@@ -20,29 +20,44 @@ Appointment::~Appointment()
 void Appointment::createAppointmentMessage()
 {
 
-    //get the infos from the ui;
-    QDate tmpdate = ui->date->selectedDate();
-    QString date = tmpdate.toString();
-    QTime tmptime = ui->appointmentTime->time();
-    QString time = tmptime.toString();
+}
 
-    int doctor = ui->docId->value();
-    QString title = ui->title->text();
-    QString notes = ui->notes->toPlainText();
+QStringList Appointment::getGuiInput()
+{
+    QStringList list;
+    list.append(date);
+    list.append(time);
+    list.append(doctorName);
+    list.append(title);
+    list.append(text);
 
-    AppointmentEntity appointment;
-    appointment.setProperties(date,time,QString::number(doctor),title,notes);
+    return list;
+}
 
-    //create the header and message for the server
-    QByteArray header;
-    int messageType = MessageHeader::saveMessage;
-    int messageEntity = MessageHeader::AppointmentEnt;
+void Appointment::setDocMap(std::vector<std::pair<int, QString>> doctorMap)
+{
+    qDebug() << "rechead setdocmap";
+    doctorMapInAppointment.clear();
+    doctorMapInAppointment = doctorMap;
 
-    header.prepend(QString::number(messageEntity).toUtf8() + ",");
-    header.prepend(QString::number(messageType).toUtf8() + ",");
 
-    emit messageCreated(header, appointment.getPropertiesAsString());
-    resetPage();
+    for(unsigned long i = 0; i <  doctorMapInAppointment.size(); i++)
+    {
+
+        ui->comboBox_2->addItem(doctorMapInAppointment[i].second);
+
+
+    }
+
+
+}
+
+void Appointment::print()
+{
+
+
+
+
 
 }
 
@@ -51,7 +66,7 @@ void Appointment::resetPage()
     QDate today= QDate::currentDate();
     ui->date->setCurrentPage(today.year(),today.month());
     ui->appointmentTime->setTime(QTime::currentTime());
-    ui->docId->setValue(0);
+    //ui->docsBox->clear();
     ui->title->setText("");
     ui->notes->setText("");
 
@@ -59,6 +74,21 @@ void Appointment::resetPage()
 
 void Appointment::on_buttonSend_clicked()
 {
-    createAppointmentMessage();
+    date.clear();
+    time.clear();
+    title.clear();
+    text.clear();
+
+
+    date = ui->date->selectedDate().toString();
+    time = ui->appointmentTime->time().toString();
+    title = ui->title->text();
+    text = ui->notes->toPlainText();
+    doctorName = ui->comboBox_2->currentText();
+    emit sendAppointmentEntity();
+
+
+
+    resetPage();
 }
 

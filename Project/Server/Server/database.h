@@ -18,6 +18,7 @@ public:
     int findUserInDb(User user);
     QString getPasswordFromUser(User user);
     bool setLoginStateInDb(QString user_id, bool loginState);
+    bool deleteUser(int userID);
     QString getEMailFromUser(User user);
 
     std::vector<std::shared_ptr<Entity>> selectAppointmentsFromDatabase(QString user_id);

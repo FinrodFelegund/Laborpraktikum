@@ -20,6 +20,8 @@ public:
     User createUserFromBuffer();
     void sendLogoutRequest();
     void endTimer();
+    void getDoctorsFromServer();
+    void getAppointmentsFromServer();
 
 
 private slots:
@@ -42,6 +44,7 @@ signals:
     void pendingLogoutRequest(QString buf);
     void sendProgress(QString progress);
     void closeApplication();
+    void pendingDeleteRequest(QString buf);
 
 
 private:

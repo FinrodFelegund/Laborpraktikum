@@ -21,6 +21,7 @@ enum MessageHeader
     DoNothing,
     ReturnInformation,
     logoutRequest,
+    deleteUserRequest,
 
     //entity Types e.g. Appointment etc;  to be completed
     AppointmentEnt,
@@ -82,7 +83,9 @@ class AppointmentEntity : public Entity
     ~AppointmentEntity(){};
     void setProperties(QString date, QString time, QString doctorID, QString title, QString text);
     void setPropertiesAsEntity(QStringList list);
+    void setDocId(QString docID);
     void print();
+    void clear();
     QString getPropertiesAsString();
     QString getDate();
     QString getTime();
@@ -111,6 +114,7 @@ class DoctorEntity : public Entity
     void setProperties(QString name, QString street, QString streetNumber, QString city, QString postalCode, QString phoneNumber);
     void setPropertiesAsEntity(QStringList list);
     void print();
+    void clear();
     QString getPropertiesAsString();
     QString getName();
     QString getStreet();

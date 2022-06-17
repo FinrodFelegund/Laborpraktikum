@@ -24,34 +24,37 @@ void Doctors::resetPage()
     ui->phone->setText("");
 }
 
-void Doctors::createDoctorMessage()
-{
 
-    //get Infos
-    QString name = ui->drName->text();
-    QString street = ui->street->text();
-    QString housenumber = QString::number(ui->housenumber->value());
-    QString city = ui->city->text();
-    QString plz = ui->plz->text();
-    QString phonenumber = ui->phone->text();
-
-    DoctorEntity doctor;
-    doctor.setProperties(name,street,housenumber,city,plz,phonenumber);
-
-    //create the header and message for the server
-    QByteArray header;
-    int messageType = MessageHeader::saveMessage;
-    int messageEntity = MessageHeader::DoctorEnt;
-
-    header.prepend(QString::number(messageEntity).toUtf8() + ",");
-    header.prepend(QString::number(messageType).toUtf8() + ",");
-
-    emit messageCreated(header, doctor.getPropertiesAsString());
-    resetPage();
-}
 
 void Doctors::on_saveButton_clicked()
 {
-    createDoctorMessage();
+    name.clear();
+    street.clear();
+    streetNumber.clear();
+    city.clear();
+    postalCode.clear();
+    phoneNumber.clear();
+
+    name = ui->drName->text();
+    street = ui->street->text();
+    streetNumber = QString::number(ui->housenumber->value());
+    city = ui->city->text();
+    postalCode = ui->plz->text();
+    phoneNumber = ui->phone->text();
+
+    emit sendDoctorEntity();
+    resetPage();
 }
 
+QStringList Doctors::getGuiInput()
+{
+    QStringList list;
+    list.append(name);
+    list.append(street);
+    list.append(streetNumber);
+    list.append(city);
+    list.append(postalCode);
+    list.append(phoneNumber);
+
+    return list;
+}
