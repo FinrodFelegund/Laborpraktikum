@@ -27,6 +27,8 @@ signals:
 private slots:
     void on_buttonSend_clicked();
 
+    void on_notes_textChanged();
+
 private:
     Ui::Appointment *ui;
     QString date;
@@ -36,6 +38,7 @@ private:
     QString text;
     int docId;
     std::vector<std::pair<int, QString>> doctorMapInAppointment;
+    int maxTextLength = 200;
 };
 
 #endif // APPOINTMENT_H

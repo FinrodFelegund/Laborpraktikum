@@ -24,14 +24,7 @@ void DoctorOverview::setDoctorText(QString doctors)
 
 void DoctorOverview::updatePage()
 {
-    QByteArray header;
-    int messageType = MessageHeader::returnMessage;
-    int messageEntity = MessageHeader::DoctorEnt;
-
-    header.prepend(QString::number(messageEntity).toUtf8() + ",");
-    header.prepend(QString::number(messageType).toUtf8() + ",");
-
-    emit getAllDoctors(header,"");
+    emit getAllDoctors();
 }
 
 void DoctorOverview::showDocTable(QString doctors)

@@ -7,6 +7,7 @@
 #include <QTimer>
 
 
+
 class Krypter;
 class User;
 
@@ -22,6 +23,8 @@ public:
     void endTimer();
     void getDoctorsFromServer();
     void getAppointmentsFromServer();
+    void setLoginStatus(bool logedIn);
+    bool getLoginStatus();
 
 
 private slots:
@@ -30,12 +33,14 @@ private slots:
     void displayError(QAbstractSocket::SocketError socketError);
     void attemtingToRecconect();
 
+
 public slots:
     void sendMessage(QByteArray header, QString message);
     void readSocket();
     void setCurrentUser(User * currUser);
     void endApplication();
     void reconnectingToServer();
+    void createSocketReader();
 
 signals:
     void pendingOpeningRequest(QString buf, int messageType);
@@ -51,6 +56,7 @@ private:
 
 
     QTcpSocket *m_clientSocket;
+    QDataStream in;
     std::string IPAdress;
     int portNumber;
     Krypter *krypter;
@@ -58,6 +64,9 @@ private:
     bool m_timeout = true;
     QTimer *m_timer;
     int m_Time;
+
+    bool logedIn = false;
+
 };
 
 #endif // CLIENT_H

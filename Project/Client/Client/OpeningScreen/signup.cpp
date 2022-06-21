@@ -6,6 +6,8 @@ Signup::Signup(QWidget *parent) :
     ui(new Ui::Signup)
 {
     ui->setupUi(this);
+    ui->lineEdit_email->setMaxLength(50);
+    ui->lineEdit_password->setMaxLength(32);
 }
 
 Signup::~Signup()

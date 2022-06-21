@@ -16,6 +16,8 @@ public:
     void signupGui2Model();
     void setGui(OpeningScreen *screen);
     void connectGui();
+    bool checkForStrongPassword(QString passowrd);
+    bool checkForEmail(QString email);
 
 
 signals:
@@ -29,7 +31,7 @@ public slots:
     void sendLoginRequest();
     void sendSignUpRequest();
     void sendPasswordRequest();
-    bool checkForStrongPassword(QString passowrd);
+
 
 
 private:

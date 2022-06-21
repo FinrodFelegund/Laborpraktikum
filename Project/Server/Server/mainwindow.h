@@ -56,7 +56,7 @@ private:
 
 
 
-    int createEntityAndSafeToDatabase(int entityType, int cipherLength, QByteArray buffer);
+    int createEntityAndSafeToDatabase(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor);
 
     //Database functions that save an Entity
     bool saveDoctorInDb(DoctorEntity ent, QString user_id);

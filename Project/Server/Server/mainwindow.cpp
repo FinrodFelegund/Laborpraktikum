@@ -98,7 +98,7 @@ void MainWindow::appendToSocketList(QTcpSocket* socket){
 
 void MainWindow::readSocket(){
 
-    qDebug() << "new Message received";
+
     QTcpSocket *socket = reinterpret_cast<QTcpSocket*>(sender());
     QByteArray buffer;
 
@@ -107,13 +107,19 @@ void MainWindow::readSocket(){
     socketStream.setVersion(QDataStream::Qt_6_3);
 
     socketStream.startTransaction();
-    socketStream >> buffer;
+
+    while(socket->bytesAvailable())
+    {
+           socketStream >> buffer;
+    }
+
 
     if(!socketStream.commitTransaction())
     {
             QString message = QString("%1 :: Waiting for more data to come..").arg(socket->socketDescriptor());
 
             qDebug() << message;
+            qDebug() << "Test";
             return;
 
     }
@@ -213,9 +219,8 @@ void MainWindow::displayMessage(QString header, QByteArray buffer, long long soc
     {
         case MessageHeader::saveMessage:
         {
-            qDebug()<<"save Message - create Entity";
-            entityType=createEntityAndSafeToDatabase(entityType, cipherLength, buffer);
-            qDebug()<<"Entity created - answer: " + QString::number(entityType);
+            qDebug() << "saving Entity";
+            entityType=createEntityAndSafeToDatabase(entityType, cipherLength, buffer, socketDescriptor);
             returnMessage(entityType,cipherLength,buffer,socketDescriptor);
             break;
         }
@@ -296,6 +301,9 @@ void MainWindow::returnMessageArray(int entityType, int cipherLength, QByteArray
             header.append(QString::number(MessageHeader::DoctorEnt).toUtf8()+ ",");
 
             qDebug() << "sending doctors back";
+            for(int i = 0; i < ents.size(); i++){
+               ents[i]->print();
+            }
             sendMessage(receiver, ents, header);
             break;
         }
@@ -308,6 +316,9 @@ void MainWindow::returnMessageArray(int entityType, int cipherLength, QByteArray
             header.append(QString::number(MessageHeader::AppointmentEnt).toUtf8()+",");
 
             qDebug() << "sending appointments back";
+           /* for(int i = 0; i < ents.size(); i++){
+               ents[i]->print();
+            }*/
             sendMessage(receiver, ents, header);
             break;
         }
@@ -375,7 +386,7 @@ void MainWindow::logoutUserAndReturnStatus(int entityType, int cipherLength, QBy
         header.append(QString::number(MessageHeader::UserEnt).toUtf8() + ",");
     }
 
-    qDebug() << "we reached sendMessage";
+
     sendMessage(receiver, ents, header);
 
 }
@@ -437,7 +448,7 @@ void MainWindow::loginUserAndReturnStatus(int entityType, int cipherLength, QByt
 
     int userID = findUserInDatabase(user);
     //User ID = 0 means user not in database -1 already logged in on other device, everything else is userID
-    qDebug() << userID;
+
     if(userID > 0)
     {
         setLoginStateInDB(QString::number(userID), true);
@@ -479,7 +490,7 @@ void MainWindow::signUpUserAndReturnStatus(int entityType, int cipherLength, QBy
     int retVal;
     if(userID == 0)
     {
-        retVal = createEntityAndSafeToDatabase(entityType, cipherLength, buffer); //ja es wird nochmal entschlüsselt I know
+        retVal = createEntityAndSafeToDatabase(entityType, cipherLength, buffer, socketDescriptor); //ja es wird nochmal entschlüsselt I know
         if(retVal == MessageHeader::UserNotSaved)
             list[0] = QString::number(0);
         else list[0] = QString::number(1);
@@ -501,9 +512,11 @@ void MainWindow::signUpUserAndReturnStatus(int entityType, int cipherLength, QBy
     sendMessage(receiver, ent, header);
 }
 
-int MainWindow::createEntityAndSafeToDatabase(int entityType, int cipherLength, QByteArray buffer)
+int MainWindow::createEntityAndSafeToDatabase(int entityType, int cipherLength, QByteArray buffer, long long socketDescriptor)
 {
     //qDebug() << "reached 'createEntityAndSafeToDatabase' function";
+
+    int userID = getUserIDFromSocketList(socketDescriptor);
 
     QString message = krypter->decrypt(buffer, cipherLength);
     //qDebug()<<"Message: " + message;
@@ -516,10 +529,10 @@ int MainWindow::createEntityAndSafeToDatabase(int entityType, int cipherLength, 
     {
         case MessageHeader::AppointmentEnt:
         {
-        qDebug()<< "create AppointmentEntity";
+        //qDebug()<< "create AppointmentEntity";
            AppointmentEntity ent;
            ent.setProperties(list[0], list[1], list[2], list[3], list[4]);
-           if(saveAppointmentInDb(ent, list[5])){
+           if(saveAppointmentInDb(ent, QString::number(userID))){
                qDebug()<<"Appointment saved";
                result=MessageHeader::AppointmentSaved;
            } else{
@@ -530,10 +543,10 @@ int MainWindow::createEntityAndSafeToDatabase(int entityType, int cipherLength, 
         }
         case MessageHeader::DoctorEnt:
         {
-        qDebug()<<"create DoctorEntity";
+        //qDebug()<<"create DoctorEntity";
             DoctorEntity ent;
             ent.setProperties(list[0], list[1], list[2], list[3], list[4], list[5]);
-            if(saveDoctorInDb(ent, list[6])){
+            if(saveDoctorInDb(ent, QString::number(userID))){
                 qDebug()<<"Doc saved";
                 result=MessageHeader::DoctorSaved;
             } else{
@@ -631,16 +644,23 @@ void MainWindow::sendMessage(QTcpSocket *socket, std::vector<std::shared_ptr<Ent
     message.append(header);
     message.append(byteBuffer);
 
-    if(socket)
+    if(socket->open(QIODevice::ReadWrite))
     {
+
         if(socket->isOpen())
         {
             QDataStream socketStream(socket);
             socketStream.setVersion(QDataStream::Qt_6_3);
 
             socketStream << message;
+
         }
     }
+
+    socket->flush();
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+
 
 }
 

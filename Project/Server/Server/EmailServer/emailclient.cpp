@@ -99,23 +99,23 @@ bool EMailClient::sendResetEMail()
             smtp.connectToHost();
             if (!smtp.waitForReadyConnected()) {
                 qDebug() << "Failed to connect to host!";
-                return -1;
+                return false;
             }
 
             smtp.login("patientenakteoth@gmail.com", "fgxtrxbtvoifbivp");
             if (!smtp.waitForAuthenticated()) {
                 qDebug() << "Failed to login!";
-                return -2;
+                return false;
             }
 
             smtp.sendMail(message);
             if (!smtp.waitForMailSent()) {
                 qDebug() << "Failed to send mail!";
-                return -3;
+                return false;
             }
             smtp.quit();
 
 
-        return false;
+        return true;
 
 }

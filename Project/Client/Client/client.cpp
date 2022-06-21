@@ -7,7 +7,7 @@ Client::Client()
 
     m_timer = new QTimer(this);
     m_clientSocket = new QTcpSocket();
-    connect(m_clientSocket, &QTcpSocket::readyRead, this, &Client::readSocket);
+    connect(m_clientSocket, &QTcpSocket::readyRead, this, &Client::createSocketReader);
     //connect(m_clientSocket, &QTcpSocket::disconnected, this, &Client::discardSocket);
     connect(m_clientSocket, &QAbstractSocket::errorOccurred, this, &Client::displayError);
     connect(m_clientSocket, &QTcpSocket::disconnected, this, &Client::attemtingToRecconect);
@@ -25,6 +25,9 @@ Client::Client()
 
     m_user=new User();
     m_user->setProperties("0","NoEmail","NoPasswort");
+    in.setDevice(m_clientSocket);
+    in.setVersion(QDataStream::Qt_6_3);
+
 
 }
 
@@ -118,22 +121,37 @@ void Client::displayError(QAbstractSocket::SocketError socketError)
     }
 }
 
+void Client::createSocketReader()
+{
+
+    readSocket();
+}
+
 
 void Client::readSocket()
 {
+
+
     //here we must interpret the header and create an entity accordingly. Appointment, Report, etc... or just confirm if an action performed was successful
     qDebug() << "new Message received";
     QTcpSocket *socket = reinterpret_cast<QTcpSocket*>(sender());
     QByteArray buffer;
 
+    //m_clientSocket->waitForBytesWritten();
 
     QDataStream socketStream(socket);
     socketStream.setVersion(QDataStream::Qt_6_3);
 
-    socketStream.startTransaction();
-    socketStream >> buffer;
 
-    if(!socketStream.commitTransaction())
+    in.startTransaction();
+
+    while(socket->bytesAvailable())
+    {
+            in >> buffer;
+    }
+
+
+    if(!in.commitTransaction())
     {
             QString message = QString("%1 :: Waiting for more data to come..").arg(socket->socketDescriptor());
 
@@ -146,7 +164,9 @@ void Client::readSocket()
     //here we cut the buffer in header and message and get socket Descriptor in case we have to send data back to client
 
     QString header = buffer.mid(0, 128);
+
     processNewMessage(header, buffer);
+
 }
 
 void Client::setCurrentUser(User *currUser)
@@ -158,7 +178,7 @@ void Client::setCurrentUser(User *currUser)
 void Client::sendMessage(QByteArray header, QString message)
 {
 
-    message += m_user->getUID()+","; //Add User ID here for safty so all messages have the same ID
+
 
     int length = 0;
     QByteArray messageToSend = krypter->encrypt(message, &length);
@@ -167,14 +187,14 @@ void Client::sendMessage(QByteArray header, QString message)
 
     //last entry of header consists of cipher length
     header.append(QString::number(length).toUtf8() + ",");
-     qDebug() << header;
+    //qDebug() << header;
     header.resize(128);
 
 
 
     messageToSend.prepend(header);
 
-    if(m_clientSocket)
+    if(m_clientSocket->open(QIODevice::ReadWrite))
     {
         if(m_clientSocket->isOpen())
         {
@@ -182,13 +202,15 @@ void Client::sendMessage(QByteArray header, QString message)
             socketStream.setVersion(QDataStream::Qt_6_3);
 
             socketStream << messageToSend;
+
         }
     }
+     m_clientSocket->flush();
 }
 
 void Client::processNewMessage(QString header, QByteArray buffer)
 {
-    qDebug() << "reached processNewMessage";
+
     //qDebug() << header;
     QStringList headerSplit = header.split(",");
 
@@ -204,10 +226,24 @@ void Client::processNewMessage(QString header, QByteArray buffer)
     {
     case MessageHeader::UserEnt:
     {
-            if(messageType == MessageHeader::loginRequest || messageType == MessageHeader::signUpRequest)
+            if(messageType == MessageHeader::loginRequest)
             {
                 QString buf = krypter->decrypt(buffer, cipherLength);
-                qDebug() << buf;
+
+                emit pendingOpeningRequest(buf, messageType);
+                break;
+            }
+
+            if(messageType == MessageHeader::passwortRequest)
+            {
+                QString buf = krypter->decrypt(buffer, cipherLength);
+                emit pendingOpeningRequest(buf, messageType);
+            }
+
+            if(messageType == MessageHeader::signUpRequest)
+            {
+                QString buf = krypter->decrypt(buffer, cipherLength);
+
                 emit pendingOpeningRequest(buf, messageType);
                 break;
             }
@@ -215,14 +251,14 @@ void Client::processNewMessage(QString header, QByteArray buffer)
             if(messageType == MessageHeader::logoutRequest)
             {
                 QString buf = krypter->decrypt(buffer, cipherLength);
-                qDebug() << "0 : error, 1: success; " << buf;
+
                 emit pendingLogoutRequest(buf);
                 break;
             }
             if(messageType == MessageHeader::deleteUserRequest)
             {
                 QString buf = krypter->decrypt(buffer, cipherLength);
-                qDebug() << "0: error, 1: success, : " << buf;
+
                 emit pendingDeleteRequest(buf);
                 break;
             }
@@ -232,22 +268,23 @@ void Client::processNewMessage(QString header, QByteArray buffer)
 
     case MessageHeader::AppointmentEnt:
     {
+        qDebug() << "recieving Appointments";
         QString buf = krypter->decrypt(buffer, cipherLength);
-        qDebug() << buf;
+
         emit returnAppointments(buf);
         break;
     }
     case MessageHeader::DoctorEnt:
     {
+
         QString buf = krypter->decrypt(buffer, cipherLength);
-        qDebug() << buf;
+        qDebug() << "receiving Doctors";
         emit returnDoctors(buf);
         break;
     }
     case MessageHeader::DoctorSaved:
     {
         QMessageBox::information(nullptr, "Arzt wurde gespeichert!","Der Arzt wurde erfolgreich gespeichert.");
-        qDebug() << "what is going on here";
         getDoctorsFromServer();
         break;
     }
@@ -270,8 +307,19 @@ void Client::processNewMessage(QString header, QByteArray buffer)
 
 }
 
+bool Client::getLoginStatus()
+{
+    return logedIn;
+}
+
+void Client::setLoginStatus(bool logedIn)
+{
+    this->logedIn = logedIn;
+}
+
 void Client::getAppointmentsFromServer()
 {
+
 
     qDebug() << "asking for Appointments";
     QByteArray header;
@@ -279,10 +327,13 @@ void Client::getAppointmentsFromServer()
     header.append(QString::number(MessageHeader::AppointmentEnt).toUtf8() + ",");
     QString buffer;
     sendMessage(header, buffer);
+
+
 }
 
 void Client::getDoctorsFromServer()
 {
+
 
     qDebug() << "asking For doctors";
     QByteArray header;
@@ -291,6 +342,8 @@ void Client::getDoctorsFromServer()
 
     QString buffer;
     sendMessage(header, buffer);
+
+
 }
 
 void Client::sendLogoutRequest()

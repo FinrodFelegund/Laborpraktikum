@@ -38,11 +38,16 @@ public:
 
     void appointmentGuiToModel();
 
+    void getInitialDataFromServer();
+
+    void getAppointmentsFromServer();
+     void getDoctorsFromServer();
+
 signals:
     void sendApplicationProgress(QString progress);
     void logoutUser();
     void sendMessage(QByteArray header, QString message);
-    void getDoctorsFromServer(QByteArray header, QString buffer);
+
 
 
 public slots:
@@ -52,7 +57,10 @@ public slots:
     void getReturnedAppointments(QString appointments);
 
     void setDoctorsForAppointmentGui(std::vector<std::pair<int, QString>>doctorMap);
+    void setDoctorsForTimeLine(std::vector<std::pair<int, QString>>doctorMap);
 
+
+protected:
 
 
 private slots:
@@ -62,6 +70,9 @@ private slots:
 
 private:
     int getDocIDFromDocMap(QString name);
+
+
+
     Appointment *m_appointment;
     AppointmentTimeline *m_appointment_timeline;
 

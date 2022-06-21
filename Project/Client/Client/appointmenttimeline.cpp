@@ -1,3 +1,5 @@
+
+
 #include "appointmenttimeline.h"
 #include "ui_appointmenttimeline.h"
 #include <QStringList>
@@ -13,6 +15,11 @@ AppointmentTimeline::AppointmentTimeline(QWidget *parent) :
 AppointmentTimeline::~AppointmentTimeline()
 {
     delete ui;
+}
+
+void AppointmentTimeline::updatePage()
+{
+    emit getAllAppointments();
 }
 
 void AppointmentTimeline::setAppointmentVector(QString appointments)
@@ -41,10 +48,21 @@ void AppointmentTimeline::setAppointmentVector(QString appointments)
     showList();
 }
 
-void AppointmentTimeline::reciveDocMap(std::map<int, QString> map)
+void AppointmentTimeline::setDocMap(std::vector<std::pair<int, QString>>doctorMap)
 {
-    docMap=map;
+    this->doctorMap = doctorMap;
     emit getAllAppointments();
+}
+
+QString AppointmentTimeline::getNameFromDocMap(int id)
+{
+    for(unsigned long i = 0; i < doctorMap.size(); i++)
+    {
+        if(doctorMap[i].first == id)
+            return doctorMap[i].second;
+    }
+
+    return "";
 }
 
 void AppointmentTimeline::showList()
@@ -56,10 +74,11 @@ void AppointmentTimeline::showList()
 
     int i = 0;
     for(const auto &currApp:appEntVector){
+        QString name = getNameFromDocMap(currApp->getDoctorID().toInt());
         ui->allAppointments->setItem(i,0,new QTableWidgetItem(currApp->getDate()));
         ui->allAppointments->setItem(i,1,new QTableWidgetItem(currApp->getTime()));
         ui->allAppointments->setItem(i,2,new QTableWidgetItem(currApp->getTitle()));
-        ui->allAppointments->setItem(i,3,new QTableWidgetItem(docMap[currApp->getDoctorID().toInt()]));
+        ui->allAppointments->setItem(i,3,new QTableWidgetItem(name));
         ui->allAppointments->setItem(i,4,new QTableWidgetItem(currApp->getText()));
         i++;
     }

@@ -21,10 +21,11 @@ public slots:
     void setDoctorText(QString doctors);
     void updatePage();
 signals:
-    void getAllDoctors(QByteArray header, QString message);
+    void getAllDoctors();
     void docInfo(int doc_id, QString name);
     void allDocsLoaded(std::vector<std::pair<int, QString>>doctorMap);
     void refreshClicked();
+
 
 private slots:
 

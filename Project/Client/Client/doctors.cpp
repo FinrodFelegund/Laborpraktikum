@@ -7,6 +7,12 @@ Doctors::Doctors(QWidget *parent) :
     ui(new Ui::Doctors)
 {
     ui->setupUi(this);
+    ui->drName->setMaxLength(100);
+    ui->street->setMaxLength(50);
+    ui->housenumber->setMaximum(99999);
+    ui->city->setMaxLength(30);
+    ui->plz->setMaxLength(5);
+    ui->phone->setMaxLength(20);
 }
 
 Doctors::~Doctors()

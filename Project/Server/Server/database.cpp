@@ -55,7 +55,7 @@ bool Database::saveDoctorInDb(DoctorEntity ent, QString user_id)
 {
     if(user_id.toInt() > -1){
         if(db.open()){
-
+            qDebug() << user_id;
             QSqlQuery queryInsert(db);
                         queryInsert.prepare("insert into doctors(doctorname, street, streetnumber, city, plz, phone, uid) VALUES(?,?,?,?,?,?,?)");
                         queryInsert.bindValue(0,ent.getName());
@@ -73,9 +73,9 @@ bool Database::saveDoctorInDb(DoctorEntity ent, QString user_id)
                         queryInsert.bindValue(6,user_id);
 
                         bool executed = queryInsert.exec();
-                        qDebug()<<executed;
+                        qDebug()<< "In DB save Docotr: " << executed;
                         QSqlError error= queryInsert.lastError();
-                        std::cout<<error.databaseText().toUtf8().constData();
+                        qDebug() <<error.databaseText().toUtf8().constData();
                         return executed;
         }
 
@@ -93,10 +93,10 @@ bool Database::saveAppointmentInDb(AppointmentEntity ent, QString user_id)
     if(user_id.toInt() > -1){
         if(db.open()){
 
-            qDebug() << "In database function save Appointment:";
-            ent.print();
-            qDebug() << " " << user_id;
-            qDebug();
+            //qDebug() << "In database function save Appointment:";
+            //ent.print();
+            //qDebug() << " " << user_id;
+            //qDebug();
 
             QSqlQuery queryInsert(db);
                         queryInsert.prepare("insert into appointments(appdate,apptime,title,notes,did,uid) values(?,?,?,?,?,?)");
@@ -108,9 +108,9 @@ bool Database::saveAppointmentInDb(AppointmentEntity ent, QString user_id)
                         queryInsert.bindValue(5,user_id);
 
                         bool executed = queryInsert.exec();
-                        qDebug()<<executed;
+                        //qDebug()<<executed;
                         QSqlError error= queryInsert.lastError();
-                        qDebug() <<error.databaseText().toUtf8().constData();
+                        //qDebug() <<error.databaseText().toUtf8().constData();
                         return executed;
         }
 
@@ -137,7 +137,7 @@ bool Database::saveUserInDb(User user)
         executed = queryInsert.exec();
         //qDebug() << "In Save User In db: " << executed;
         QSqlError error = queryInsert.lastError();
-        qDebug() << error;
+        //qDebug() << error;
         db.commit();
         return executed;
     }
@@ -153,7 +153,8 @@ int Database::findUserInDb(User user)
         QSqlQuery queryFind(db);
         queryFind.prepare("select uid, loginState from Users where email = md5('" +user.getEmail()+ "') and passwort = md5('"+user.getPassword()+"')"); // +password
 
-        qDebug() << queryFind.exec();
+        //qDebug() << queryFind.exec();
+        queryFind.exec();
         QSqlError error = queryFind.lastError();
         if(error.isValid())
             qDebug() << "In Find User Query: " << error.databaseText().toUtf8().constData();
@@ -167,12 +168,12 @@ int Database::findUserInDb(User user)
 
             userID = queryFind.value(0).toInt();
             loginState = queryFind.value(1).toInt();
-            qDebug() << "valid" << " " << userID << " " << loginState;
+            //qDebug() << "valid" << " " << userID << " " << loginState;
             return (loginState == 1 ? -1 : userID);
 
         } else
         {
-            qDebug() << "invalid";
+            //qDebug() << "invalid";
             return 0;
         }
 
@@ -189,10 +190,11 @@ QString Database::getPasswordFromUser(User user)
     {
         QSqlQuery queryFind(db);
         queryFind.prepare("select passwort from Users where email = md5('"+user.getEmail()+"') and passwort = md5('"+user.getPassword()+"') ");
-        qDebug() << "Inf function getPasswordFromUser: " << queryFind.exec();
+        //qDebug() << "Inf function getPasswordFromUser: " << queryFind.exec();
 
         QSqlError error = queryFind.lastError();
-        qDebug() << error;
+        if(error.isValid())
+            qDebug() << error;
 
         queryFind.next();
 
@@ -214,20 +216,20 @@ bool Database::setLoginStateInDb(QString user_id, bool loginState)
         //qDebug() << "In Function SetLoginState in DB: " <<
         queryAlter.exec();
         QSqlError error = queryAlter.lastError();
-        if(error.text().isEmpty())
+        if(error.isValid())
         {
             qDebug() << error;
-            return true;
+            return false;
         }
 
     }
 
-    return false;
+    return true;
 }
 
 std::vector<std::shared_ptr<Entity> > Database::selectAppointmentsFromDatabase(QString user_id)
 {
-    qDebug()<<"Select all Appointments for User: " << user_id;
+    //qDebug()<<"Select all Appointments for User: " << user_id;
     bool executed=false;
     std::vector<std::shared_ptr<Entity>> appEntVector;
 
@@ -237,7 +239,7 @@ std::vector<std::shared_ptr<Entity> > Database::selectAppointmentsFromDatabase(Q
             querySelect.prepare("SELECT appdate, apptime, title, notes, did FROM appointments WHERE uid= ?");
             querySelect.bindValue(0,user_id.toInt());
             executed = querySelect.exec();
-            qDebug()<< executed;
+            //qDebug()<< executed;
             QSqlError error= querySelect.lastError();
             std::cout<<error.databaseText().toUtf8().constData();
 
@@ -250,7 +252,7 @@ std::vector<std::shared_ptr<Entity> > Database::selectAppointmentsFromDatabase(Q
             if(executed){
                 while (querySelect.next()) {
                         date = querySelect.value(0).toDate();
-                        qDebug()<<"date: " << date.toString();
+                        //qDebug()<<"date: " << date.toString();
                         time = querySelect.value(1).toTime();
                         title = querySelect.value(2).toString();
                         text = querySelect.value(3).toString();
@@ -259,7 +261,7 @@ std::vector<std::shared_ptr<Entity> > Database::selectAppointmentsFromDatabase(Q
                         std::shared_ptr<AppointmentEntity> appEnt=std::make_shared<AppointmentEntity>();
                         appEnt->setProperties(date.toString(),time.toString(),doctorID,title,text);
                         appEntVector.push_back(appEnt);
-                        qDebug()<<"Neuer Termin: " + appEnt->getPropertiesAsString();
+                        //qDebug()<<"Neuer Termin: " + appEnt->getPropertiesAsString();
                     }
             }
 
@@ -270,7 +272,7 @@ std::vector<std::shared_ptr<Entity> > Database::selectAppointmentsFromDatabase(Q
 
 std::vector<std::shared_ptr<Entity> > Database::selectDoctorsFromDatabase(QString user_id)
 {
-    qDebug()<<"Select all Doctors for User: " << user_id;
+    //qDebug()<<"Select all Doctors for User: " << user_id;
     bool executed=false;
     std::vector<std::shared_ptr<Entity>> docEntVector;
 
@@ -280,9 +282,9 @@ std::vector<std::shared_ptr<Entity> > Database::selectDoctorsFromDatabase(QStrin
             querySelect.prepare("select did,doctorname,street,streetnumber,city,plz,phone from doctors where uid= ?");
             querySelect.bindValue(0,user_id.toInt());
             executed = querySelect.exec();
-            qDebug()<< executed;
+            //qDebug()<< executed;
             QSqlError error= querySelect.lastError();
-            std::cout<<error.databaseText().toUtf8().constData();
+            //std::cout<<error.databaseText().toUtf8().constData();
 
             QString doctor_id;
             QString name;
@@ -306,7 +308,7 @@ std::vector<std::shared_ptr<Entity> > Database::selectDoctorsFromDatabase(QStrin
                         std::shared_ptr<DoctorEntityId> docEnt=std::make_shared<DoctorEntityId>();
                         docEnt->setProperties(doctor_id,name,street,streetNumber,city,postalCode,phoneNumber);
                         docEntVector.push_back(docEnt);
-                        qDebug()<<"Neuer Arzt: " + docEnt->getPropertiesAsString();
+                        //qDebug()<<"Neuer Arzt: " + docEnt->getPropertiesAsString();
                     }
             }
 
@@ -323,7 +325,7 @@ bool Database::selectDateTest()
             QSqlQuery querySelect(db);
             querySelect.prepare("select appdate from appointments where uid = 1");
             executed = querySelect.exec();
-            qDebug()<< executed;
+            //qDebug()<< executed;
             QSqlError error= querySelect.lastError();
             std::cout<<error.databaseText().toUtf8().constData();
 
@@ -333,7 +335,7 @@ bool Database::selectDateTest()
             if(executed){
                 while (querySelect.next()) {
                         date = querySelect.value(0).toDate();
-                        qDebug()<<"Neuer Termin Datum: " + date.toString();
+                        //qDebug()<<"Neuer Termin Datum: " + date.toString();
                     }
             }
 

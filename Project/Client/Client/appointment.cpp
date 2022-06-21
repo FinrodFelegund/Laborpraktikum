@@ -8,7 +8,7 @@ Appointment::Appointment(QWidget *parent) :
     ui(new Ui::Appointment)
 {
     ui->setupUi(this);
-
+    ui->title->setMaxLength(50);
 
 }
 
@@ -39,7 +39,7 @@ void Appointment::setDocMap(std::vector<std::pair<int, QString>> doctorMap)
     qDebug() << "rechead setdocmap";
     doctorMapInAppointment.clear();
     doctorMapInAppointment = doctorMap;
-
+    ui->comboBox_2->clear();
 
     for(unsigned long i = 0; i <  doctorMapInAppointment.size(); i++)
     {
@@ -63,12 +63,12 @@ void Appointment::print()
 
 void Appointment::resetPage()
 {
-    QDate today= QDate::currentDate();
-    ui->date->setCurrentPage(today.year(),today.month());
-    ui->appointmentTime->setTime(QTime::currentTime());
+    //QDate today= QDate::currentDate();
+    //ui->date->setCurrentPage(today.year(),today.month());
+    //ui->appointmentTime->setTime(QTime::currentTime());
     //ui->docsBox->clear();
-    ui->title->setText("");
-    ui->notes->setText("");
+    ui->title->clear();
+    ui->notes->clear();
 
 }
 
@@ -90,5 +90,29 @@ void Appointment::on_buttonSend_clicked()
 
 
     resetPage();
+}
+
+
+void Appointment::on_notes_textChanged()
+{
+
+    QString text = ui->notes->document()->toPlainText();
+
+
+    int overLap = 0;
+    if(text.size() > maxTextLength)
+    {
+        overLap =  text.size() - maxTextLength;
+
+        text.chop(overLap);
+
+        ui->notes->document()->setPlainText(text);
+
+        QTextCursor cursor(ui->notes->textCursor());
+        cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+        ui->notes->setTextCursor(cursor);
+    }
+
+
 }
 

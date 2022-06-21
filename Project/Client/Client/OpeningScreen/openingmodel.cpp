@@ -86,6 +86,7 @@ void OpeningModel::receiveMessage(QString buffer, int messageType)
 
         case MessageHeader::passwortRequest:
         {
+            qDebug() << m_user->getUID();
             if(m_user->getUID().toInt() == 1)
             {
                 emit sendLoginProgress("A message with your password was sent to your EMail Adresse.");
@@ -128,9 +129,11 @@ void OpeningModel::sendSignUpRequest()
     signupGui2Model();
 
     QString password = m_user->getPassword();
-    bool ok = checkForStrongPassword(password);
+    QString email = m_user->getEmail();
+    bool passwordOK = checkForStrongPassword(password);
+    bool eMailOK = checkForEmail(email);
 
-    if(ok)
+    if(passwordOK && eMailOK)
     {
         QByteArray header;
         int messageType = MessageHeader::signUpRequest;
@@ -141,11 +144,63 @@ void OpeningModel::sendSignUpRequest()
         QString buffer = m_user->getPropertiesAsString();
 
         emit messageCreated(header, buffer);
-    } else
+    }
+    if(!passwordOK)
     {
-        sendLoginProgress("Password not strong enough. Has to containe one lower case letter, one upper case letter, one digit, a special character and at least 8 characters in size");
+        emit sendLoginProgress("Password not strong enough. Has to containe one lower case letter, one upper case letter, one digit, a special character and at least 8 characters in size");
+    }
+    if(!eMailOK)
+    {
+        emit sendLoginProgress("This is not a valid Email Adress!");
     }
 
+}
+
+bool isChar(QChar c)
+{
+    return ((c >= 'a' && c <= 'z')
+                || (c >= 'A' && c <= 'Z'));
+}
+
+bool isDigit(QChar c)
+{
+    return (c >= '0' && c <= '9');
+}
+
+bool OpeningModel::checkForEmail(QString email)
+{
+
+    if(email.size() < 8)
+        return false;
+
+    if (!isChar(email[0]))
+            return false;
+
+        int At = -1, Dot = -1;
+
+        for (int i = 0;
+             i < email.length(); i++) {
+
+            if (email[i] == '@') {
+
+                At = i;
+            }
+
+            else if (email[i] == '.') {
+
+                Dot = i;
+            }
+        }
+
+        if (At == -1 || Dot == -1)
+            return false;
+
+
+        if (At > Dot)
+            return false;
+
+
+        return !(Dot >= (email.length() - 1));
 }
 
 void OpeningModel::sendPasswordRequest()

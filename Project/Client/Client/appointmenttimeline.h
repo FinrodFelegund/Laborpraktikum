@@ -16,10 +16,12 @@ class AppointmentTimeline : public QWidget
 public:
     explicit AppointmentTimeline(QWidget *parent = nullptr);
     ~AppointmentTimeline();
+    QString getNameFromDocMap(int id);
 
 public slots:
     void setAppointmentVector(QString appointments);
-    void reciveDocMap(std::map<int, QString> map);
+    void setDocMap(std::vector<std::pair<int, QString>>doctorMap);
+    void updatePage();
 
 signals:
     void getAllAppointments();
@@ -29,7 +31,7 @@ private:
 
     Ui::AppointmentTimeline *ui;
     std::vector<std::shared_ptr<AppointmentEntity>> appEntVector;
-    std::map<int, QString> docMap;
+    std::vector<std::pair<int, QString>>doctorMap;
 };
 
 #endif // APPOINTMENTTIMELINE_H

@@ -26,6 +26,10 @@ MainWindow::MainWindow(QWidget *parent)
     m_openingModel->setGui(m_openingScreen);
     m_openingModel->connectGui();
 
+
+
+
+
     m_applicationModel->setAppointment(m_appointment);
     m_applicationModel->setAppointment_timeline(m_appointment_timeline);
     m_applicationModel->setDoctors(m_doctors);
@@ -34,11 +38,16 @@ MainWindow::MainWindow(QWidget *parent)
     m_applicationModel->connectGui();
 
 
+
+
+
     ui->stackedWidget->insertWidget(0, m_openingScreen);
     ui->stackedWidget->insertWidget(1, m_appointment);
     ui->stackedWidget->insertWidget(2,m_doctors);
     ui->stackedWidget->insertWidget(3,m_appointment_timeline);
     ui->stackedWidget->insertWidget(4,m_doctor_overview);
+
+
 
     ui->stackedWidget->setCurrentWidget(m_openingScreen);
 
@@ -49,7 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(client, &Client::pendingOpeningRequest, m_openingModel, &OpeningModel::receiveMessage);
     connect(m_openingModel, &OpeningModel::sendLoginProgress, this, &MainWindow::showProgress);
     connect(m_openingModel, &OpeningModel::currentUser, client, &Client::setCurrentUser);
-    connect(m_openingModel, &OpeningModel::showMainWindows, this, &MainWindow::showMainWindows);
+
     connect(m_openingModel, &OpeningModel::showMainWindows, this, &MainWindow::showMainWindows);
     connect(this, &MainWindow::closeSignalToClient, client, &Client::endApplication);
     connect(client, &Client::sendProgress, this, &MainWindow::showProgress);
@@ -57,13 +66,17 @@ MainWindow::MainWindow(QWidget *parent)
 
 
      //connect(m_applicationModel, &ApplicationModel::getDoctorsFromServer, client, &Client::sendMessage);
-     connect(m_applicationModel, &ApplicationModel::sendMessage, client, &Client::sendMessage);
-     connect(m_applicationModel, &ApplicationModel::sendApplicationProgress, this, &MainWindow::showProgress);
-     connect(m_applicationModel, &ApplicationModel::logoutUser, this, &MainWindow::returnToLogin);
-     connect(client,&Client::returnAppointments,m_applicationModel,&ApplicationModel::getReturnedAppointments);
-     connect(client,&Client::returnDoctors,m_applicationModel,&ApplicationModel::getReturnedDoctors);
-     connect(client, &Client::pendingLogoutRequest, m_applicationModel, &ApplicationModel::logoutRequest);
-     connect(client, &Client::pendingDeleteRequest, m_applicationModel, &ApplicationModel::deleteRequest);
+    //test
+    //connect(this, &MainWindow::logedIn, m_applicationModel, &ApplicationModel::getDoctorsFromServer);
+
+    connect(m_applicationModel, &ApplicationModel::sendMessage, client, &Client::sendMessage);
+    connect(m_applicationModel, &ApplicationModel::sendApplicationProgress, this, &MainWindow::showProgress);
+    connect(m_applicationModel, &ApplicationModel::logoutUser, this, &MainWindow::returnToLogin);
+    connect(client,&Client::returnAppointments,m_applicationModel,&ApplicationModel::getReturnedAppointments);
+    connect(client,&Client::returnDoctors,m_applicationModel,&ApplicationModel::getReturnedDoctors);
+    connect(client, &Client::pendingLogoutRequest, m_applicationModel, &ApplicationModel::logoutRequest);
+    connect(client, &Client::pendingDeleteRequest, m_applicationModel, &ApplicationModel::deleteRequest);
+
 
     ui->appointmentButton->hide();
     ui->docButton->hide();
@@ -71,6 +84,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->allDocsButton->hide();
     ui->logoutButton->hide();
     ui->deleteProfileButton->hide();
+
+
 
 
 }
@@ -99,7 +114,9 @@ void MainWindow::on_docButton_clicked()
 
 void MainWindow::on_appTimelineButton_clicked()
 {
+
     ui->stackedWidget->setCurrentWidget(m_appointment_timeline);
+
 }
 
 void MainWindow::showProgress(QString progress)
@@ -109,31 +126,38 @@ void MainWindow::showProgress(QString progress)
 
 void MainWindow::showMainWindows()
 {
-    //client->getDoctorsFromServer();
+
     ui->appointmentButton->show();
     ui->docButton->show();
     ui->allDocsButton->show();
     ui->appTimelineButton->show();
     ui->logoutButton->show();
     ui->deleteProfileButton->show();
+    on_appointmentButton_clicked();
 
-    on_appTimelineButton_clicked();
+    //m_applicationModel->getDoctorsFromServer();
 
-    //client->getAppointmentsFromServer();
+    //m_applicationModel->getAppointmentsFromServer();
+    client->getDoctorsFromServer();
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    client->getAppointmentsFromServer();
+
 }
 
 
 
 void MainWindow::on_allDocsButton_clicked()
 {
-    m_doctor_overview->updatePage();
+
     ui->stackedWidget->setCurrentWidget(m_doctor_overview);
+
 }
 
 
 void MainWindow::on_logoutButton_clicked()
 {
     client->sendLogoutRequest();
+
 }
 
 void MainWindow::returnToLogin()
@@ -146,6 +170,8 @@ void MainWindow::returnToLogin()
     ui->deleteProfileButton->hide();
 
     ui->stackedWidget->setCurrentWidget(m_openingScreen);
+
+
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

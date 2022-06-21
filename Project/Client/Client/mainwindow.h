@@ -11,6 +11,8 @@
 #include "OpeningScreen/openingmodel.h"
 #include "applicationmodel.h"
 #include <QCloseEvent>
+#include <chrono>
+#include <thread>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -44,9 +46,12 @@ private slots:
 
     void on_deleteProfileButton_clicked();
 
+
+
 signals:
     void closeSignalToClient();
     void destroyed(QObject *obj = Q_NULLPTR);
+    void logedIn();
 
 private:
     Ui::MainWindow *ui;
@@ -54,7 +59,7 @@ private:
     Appointment *m_appointment;
     Doctors *m_doctors;
     OpeningModel *m_openingModel;
-    ApplicationModel *m_applicationModel;
+    ApplicationModel *m_applicationModel = nullptr;
     OpeningScreen * m_openingScreen;
     std::vector<QWidget*> widgets;
     AppointmentTimeline *m_appointment_timeline;

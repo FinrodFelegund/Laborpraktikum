@@ -7,7 +7,10 @@ ApplicationModel::ApplicationModel(QObject *parent)
 
     m_doctorEntity = new DoctorEntity();
     m_appointmentEntity = new AppointmentEntity();
+
 }
+
+
 
 void ApplicationModel::logoutRequest(QString buffer)
 {
@@ -35,6 +38,29 @@ void ApplicationModel::deleteRequest(QString buffer)
         emit sendApplicationProgress("Deleting Account not successful");
     }
 
+}
+
+void ApplicationModel::getAppointmentsFromServer()
+{
+
+    qDebug() << "asking for Appointments";
+    QByteArray header;
+    header.append(QString::number(MessageHeader::returnMessageArray).toUtf8()+ ",");
+    header.append(QString::number(MessageHeader::AppointmentEnt).toUtf8() + ",");
+    QString buffer;
+    emit sendMessage(header, buffer);
+}
+
+void ApplicationModel::getDoctorsFromServer()
+{
+
+    qDebug() << "asking For doctors";
+    QByteArray header;
+    header.append(QString::number(MessageHeader::returnMessageArray).toUtf8()+",");
+    header.append(QString::number(MessageHeader::DoctorEnt).toUtf8()+ ",");
+
+    QString buffer;
+    emit sendMessage(header, buffer);
 }
 
 void ApplicationModel::getReturnedDoctors(QString doctors)
@@ -124,7 +150,17 @@ void ApplicationModel::connectGui()
 {
     connect(m_doctors, &Doctors::sendDoctorEntity, this, &ApplicationModel::sendDoctorToServer);
     connect(m_doctor_overview, &DoctorOverview::allDocsLoaded, this, &ApplicationModel::setDoctorsForAppointmentGui);
+    connect(m_doctor_overview, &DoctorOverview::allDocsLoaded, this, &ApplicationModel::setDoctorsForTimeLine);
     connect(m_appointment, &Appointment::sendAppointmentEntity, this, &ApplicationModel::sendAppointmentToServer);
+    connect(m_doctor_overview, &DoctorOverview::getAllDoctors, this, &ApplicationModel::getDoctorsFromServer);
+    connect(m_appointment_timeline, &AppointmentTimeline::getAllAppointments, this, &ApplicationModel::getAppointmentsFromServer);
+
+}
+
+void ApplicationModel::setDoctorsForTimeLine(std::vector<std::pair<int, QString>>doctorMap)
+{
+    auto timeline = getAppointment_timelineGui();
+    timeline->setDocMap(doctorMap);
 
 }
 
@@ -132,6 +168,11 @@ void ApplicationModel::sendAppointmentToServer()
 {
     appointmentGuiToModel();
     QString docName = m_appointmentEntity->getDoctorID();
+    if(docName == "No doctors available")
+    {
+        emit sendApplicationProgress("Create a doctor to create an appointment");
+        return;
+    }
     int docID = getDocIDFromDocMap(docName);
     m_appointmentEntity->setDocId(QString::number(docID));
     QString buffer = m_appointmentEntity->getPropertiesAsString();
@@ -149,7 +190,7 @@ int ApplicationModel::getDocIDFromDocMap(QString name)
 {
     for(unsigned long i = 0; i < doctorMap.size(); i++)
     {
-        qDebug() << name << " " << doctorMap[i].second;
+        //qDebug() << name << " " << doctorMap[i].second;
         if(name == doctorMap[i].second)
             return doctorMap[i].first;
     }
@@ -169,8 +210,18 @@ void ApplicationModel::appointmentGuiToModel()
 void ApplicationModel::setDoctorsForAppointmentGui(std::vector<std::pair<int, QString>>doctorMap)
 {
     auto appointmentGui = getAppointmentGui();
-    appointmentGui->setDocMap(doctorMap);
-    this->doctorMap = doctorMap;
+    if(!doctorMap.empty())
+    {
+
+        appointmentGui->setDocMap(doctorMap);
+        this->doctorMap = doctorMap;
+    } else {
+        doctorMap.clear();
+        doctorMap.push_back(std::make_pair(-1, "No doctors available"));
+        appointmentGui->setDocMap(doctorMap);
+
+    }
+
 
 }
 

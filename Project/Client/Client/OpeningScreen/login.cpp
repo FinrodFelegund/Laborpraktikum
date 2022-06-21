@@ -7,6 +7,8 @@ Login::Login(QWidget *parent) :
     ui(new Ui::Login)
 {
     ui->setupUi(this);
+    ui->lineEdit_email->setMaxLength(50);
+    ui->lineEdit_password->setMaxLength(32);
 }
 
 Login::~Login()
